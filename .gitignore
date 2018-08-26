@@ -28,6 +28,7 @@ gradle-app.setting
 .idea/**/codeStyles
 .idea/**/misc.xml
 .idea/**/.name
+.idea/markdown-navigator/
 
 #Google-Java-Format
 .idea/google-java-format.xml
@@ -103,3 +104,5 @@ hs_err_pid*
 /tdlib/thumbnails/
 /tdlib/music/
 /tdlib/profile_photos/
+/tdlib/db.sqlite-shm
+/tdlib/db.sqlite-wal

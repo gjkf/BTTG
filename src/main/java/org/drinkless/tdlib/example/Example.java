@@ -38,25 +38,25 @@ public final class Example {
   private static final Condition gotAuthorization = authorizationLock.newCondition();
 
   private static final ConcurrentMap<Integer, TdApi.User> users =
-      new ConcurrentHashMap<Integer, TdApi.User>();
+      new ConcurrentHashMap<>();
   private static final ConcurrentMap<Integer, TdApi.BasicGroup> basicGroups =
-      new ConcurrentHashMap<Integer, TdApi.BasicGroup>();
+      new ConcurrentHashMap<>();
   private static final ConcurrentMap<Integer, TdApi.Supergroup> supergroups =
-      new ConcurrentHashMap<Integer, TdApi.Supergroup>();
+      new ConcurrentHashMap<>();
   private static final ConcurrentMap<Integer, TdApi.SecretChat> secretChats =
-      new ConcurrentHashMap<Integer, TdApi.SecretChat>();
+      new ConcurrentHashMap<>();
 
   private static final ConcurrentMap<Long, TdApi.Chat> chats =
-      new ConcurrentHashMap<Long, TdApi.Chat>();
+      new ConcurrentHashMap<>();
   private static final NavigableSet<OrderedChat> chatList = new TreeSet<OrderedChat>();
   private static boolean haveFullChatList = false;
 
   private static final ConcurrentMap<Integer, TdApi.UserFullInfo> usersFullInfo =
-      new ConcurrentHashMap<Integer, TdApi.UserFullInfo>();
+      new ConcurrentHashMap<>();
   private static final ConcurrentMap<Integer, TdApi.BasicGroupFullInfo> basicGroupsFullInfo =
-      new ConcurrentHashMap<Integer, TdApi.BasicGroupFullInfo>();
+      new ConcurrentHashMap<>();
   private static final ConcurrentMap<Integer, TdApi.SupergroupFullInfo> supergroupsFullInfo =
-      new ConcurrentHashMap<Integer, TdApi.SupergroupFullInfo>();
+      new ConcurrentHashMap<>();
 
   private static final String newLine = System.getProperty("line.separator");
   private static final String commandsLine =
@@ -318,8 +318,9 @@ public final class Example {
   }
 
   public static void main(String[] args) throws Exception {
-    //TODO: possible fix for high-dpi scaling: http://mail.openjdk.java.net/pipermail/openjfx-dev/2013-May/007738.html
-    //TODO: read all tutorials:
+    // TODO: possible fix for high-dpi scaling:
+    // http://mail.openjdk.java.net/pipermail/openjfx-dev/2013-May/007738.html
+    // TODO: read all tutorials:
     // https://docs.oracle.com/javase/8/javafx/get-started-tutorial/fxml_tutorial.htm#CHDCCHII
     // https://docs.oracle.com/javase/8/javafx/get-started-tutorial/form.htm#BABDDGEE
     // https://docs.oracle.com/javase/8/javafx/get-started-tutorial/css.htm#BEIBBBCI
@@ -331,31 +332,30 @@ public final class Example {
     }
 
     // create client
-//    client = Client.create(new UpdatesHandler(), null, null);
+    BTTG.setClient(Client.create(new UpdatesHandler(), null, null));
     Application.launch(BTTG.class, args);
-//
-//    // test Client.execute
-//    defaultHandler.onResult(
-//        Client.execute(
-//            new TdApi.GetTextEntities(
-//                "@telegram /test_command https://telegram.org telegram.me @gif @test")));
-//
-//    // main loop
-//    while (!quiting) {
-//      // await authorization
-//      authorizationLock.lock();
-//      try {
-//        while (!haveAuthorization) {
-//          gotAuthorization.await();
-//        }
-//      } finally {
-//        authorizationLock.unlock();
-//      }
-//
-//      while (haveAuthorization) {
-//        getCommand();
-//      }
-//    }
+    //    // test Client.execute
+    //    defaultHandler.onResult(
+    //        Client.execute(
+    //            new TdApi.GetTextEntities(
+    //                "@telegram /test_command https://telegram.org telegram.me @gif @test")));
+    //
+    //    // main loop
+    //    while (!quiting) {
+    //      // await authorization
+    //      authorizationLock.lock();
+    //      try {
+    //        while (!haveAuthorization) {
+    //          gotAuthorization.await();
+    //        }
+    //      } finally {
+    //        authorizationLock.unlock();
+    //      }
+    //
+    //      while (haveAuthorization) {
+    //        getCommand();
+    //      }
+    //    }
   }
 
   public static class OrderedChat implements Comparable<OrderedChat> {
@@ -397,7 +397,8 @@ public final class Example {
     public void onResult(TdApi.Object object) {
       switch (object.getConstructor()) {
         case TdApi.UpdateAuthorizationState.CONSTRUCTOR:
-          onAuthorizationStateUpdated(((TdApi.UpdateAuthorizationState) object).authorizationState);
+          //          onAuthorizationStateUpdated(((TdApi.UpdateAuthorizationState)
+          // object).authorizationState);
           break;
 
         case TdApi.UpdateUser.CONSTRUCTOR:
@@ -584,7 +585,6 @@ public final class Example {
       switch (object.getConstructor()) {
         case TdApi.Error.CONSTRUCTOR:
           System.err.println("Receive an error:" + newLine + object);
-          onAuthorizationStateUpdated(null); // repeat last action
           break;
         case TdApi.Ok.CONSTRUCTOR:
           // result is already received through UpdateAuthorizationState, nothing to do

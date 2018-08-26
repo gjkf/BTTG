@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.text.Text?>
@@ -19,5 +20,14 @@
         <Text text="Welcome"
               GridPane.columnIndex="0" GridPane.rowIndex="0"
               GridPane.columnSpan="2"/>
+
+        <TextField fx:id="message"
+                   GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+        <HBox spacing="10" alignment="bottom_right"
+              GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <Button text="Send"
+                    onAction="#sendMessage"/>
+        </HBox>
     </GridPane>
 </StackPane>

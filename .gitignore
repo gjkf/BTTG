@@ -24,6 +24,12 @@ gradle-app.setting
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/**/codeStyles
+.idea/**/misc.xml
+.idea/**/.name
+
+#Google-Java-Format
+.idea/google-java-format.xml
 
 # Sensitive or high-churn files
 .idea/**/dataSources/
@@ -79,3 +85,5 @@ atlassian-ide-plugin.xml
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+/tdlib/

@@ -190,7 +190,7 @@ public final class Client implements Runnable {
   private volatile boolean isClientDestroyed = false;
   private final long nativeClientId;
 
-  private final ConcurrentHashMap<Long, Handler> handlers = new ConcurrentHashMap<Long, Handler>();
+  private final ConcurrentHashMap<Long, Handler> handlers = new ConcurrentHashMap<>();
   private final AtomicLong currentQueryId = new AtomicLong();
 
   private volatile ExceptionHandler defaultExceptionHandler = null;

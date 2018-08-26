@@ -87,4 +87,19 @@ atlassian-ide-plugin.xml
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
-/tdlib/
+/tdlib/db.sqlite
+/tdlib/td.binlog
+/tdlib/animations
+/tdlib/photos/
+/tdlib/temp/
+/tdlib/secret_thumbnails/
+/tdlib/stickers/
+/tdlib/video_notes/
+/tdlib/wallpapers/
+/tdlib/videos/
+/tdlib/documents/
+/tdlib/voice/
+/tdlib/secret/
+/tdlib/thumbnails/
+/tdlib/music/
+/tdlib/profile_photos/

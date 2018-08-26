@@ -13,6 +13,7 @@ import org.drinkless.tdlib.TdApi;
 public class AuthCheckHandler implements Client.ResultHandler {
   @Override
   public void onResult(TdApi.Object object) {
+    System.out.println(object.toString());
     switch (object.getConstructor()) {
       case TdApi.AuthorizationStateReady.CONSTRUCTOR:
         BTTG.setFxml("fxml/bttg.fxml");

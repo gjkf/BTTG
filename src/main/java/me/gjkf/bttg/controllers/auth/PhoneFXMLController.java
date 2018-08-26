@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * Controller for the number insertion scene.
+ * Controller for the number insertion scene
  *
  * @see me.gjkf.bttg.controllers.BTTGFXMLController
  */

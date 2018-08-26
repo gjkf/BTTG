@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * Controller for the authentication code insertion.
+ * Controller for the authentication code insertion
  *
  * @see me.gjkf.bttg.controllers.BTTGFXMLController
  */

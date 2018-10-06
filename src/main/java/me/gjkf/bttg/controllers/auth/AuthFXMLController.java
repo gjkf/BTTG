@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TextField;
 import me.gjkf.bttg.BTTG;
+import me.gjkf.bttg.controllers.BTTGMainScene;
 import me.gjkf.bttg.handlers.AuthRequestHandler;
 import org.drinkless.tdlib.TdApi;
 
@@ -27,16 +28,13 @@ public class AuthFXMLController {
             new TdApi.CheckAuthenticationCode(authCode.getText(), "Davide", "Cossu"),
             new AuthRequestHandler());
 
-    try {
-      authCode
-          .getScene()
-          .setRoot(
-              FXMLLoader.load(
-                  Objects.requireNonNull(
-                      BTTG.class.getClassLoader().getResource("fxml/bttg.fxml"))));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    //      authCode
+//          .getScene()
+//          .setRoot(
+//              FXMLLoader.load(
+//                  Objects.requireNonNull(
+//                      BTTG.class.getClassLoader().getResource("fxml/bttg.fxml"))));
+    authCode.getScene().setRoot(new BTTGMainScene());
   }
 
   @FXML

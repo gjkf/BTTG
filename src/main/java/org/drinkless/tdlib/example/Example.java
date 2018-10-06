@@ -326,7 +326,7 @@ public final class Example {
     // https://docs.oracle.com/javase/8/javafx/get-started-tutorial/css.htm#BEIBBBCI
 
     // disable TDLib log
-    Log.setVerbosityLevel(0);
+    Log.setVerbosityLevel(3);
     if (!Log.setFilePath("tdlib.log")) {
       throw new IOError(new IOException("Write access to the current directory is required"));
     }

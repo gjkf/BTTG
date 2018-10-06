@@ -1,17 +1,20 @@
 package me.gjkf.bttg;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import me.gjkf.bttg.controllers.BTTGMainScene;
 import me.gjkf.bttg.handlers.AuthCheckHandler;
 import me.gjkf.bttg.handlers.AuthRequestHandler;
 import org.drinkless.tdlib.Client;
 import org.drinkless.tdlib.TdApi;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /** Entry point of the GUI application */
 public class BTTG extends Application {
@@ -24,7 +27,11 @@ public class BTTG extends Application {
   /**
    * The {@code String} representation of the path for the FXML file
    */
-  private static String fxml = "fxml/phone.fxml";
+  private static String fxml = null;
+
+  private static Set<Long> chats = new LinkedHashSet<Long>();
+
+  private static Parent root;
 
   @Override
   public void init() throws Exception {
@@ -45,14 +52,33 @@ public class BTTG extends Application {
     client.send(new TdApi.CheckDatabaseEncryptionKey(), new AuthRequestHandler());
 
     client.send(new TdApi.GetAuthorizationState(), new AuthCheckHandler());
+
+    client.send(
+        new TdApi.GetChats(Long.MAX_VALUE, 0, Integer.MAX_VALUE),
+        object -> {
+          switch (object.getConstructor()) {
+            case TdApi.Error.CONSTRUCTOR:
+              System.err.println(
+                  "Received an error for GetChats:" + System.lineSeparator() + object);
+              break;
+            case TdApi.Chats.CONSTRUCTOR:
+              long[] chatIds = ((TdApi.Chats) object).chatIds;
+              Arrays.stream(chatIds).forEach(id -> chats.add(id));
+              System.out.println(Arrays.toString(chatIds));
+              break;
+            default:
+              System.err.println(
+                  "Received wrong response from TDLib:" + System.lineSeparator() + object);
+          }
+        });
+    System.out.println(chats);
   }
 
   @Override
   public void start(Stage primaryStage) throws IOException {
-    Parent root;
-
-    root =
-        FXMLLoader.load(Objects.requireNonNull(BTTG.class.getClassLoader().getResource(getFxml())));
+//    root =
+//        FXMLLoader.load(Objects.requireNonNull(BTTG.class.getClassLoader().getResource(getFxml())));
+    root = new BTTGMainScene();
     Scene scene = new Scene(root, 1000, 800);
     scene
         .getStylesheets()
@@ -86,6 +112,18 @@ public class BTTG extends Application {
 
   public static void setClient(Client client) {
     BTTG.client = client;
+  }
+
+  public static Set<Long> getChats() {
+    return chats;
+  }
+
+  public static Parent getRoot() {
+    return root;
+  }
+
+  public static void setRoot(Parent root) {
+    BTTG.root = root;
   }
 
   public static void main(String[] args) {

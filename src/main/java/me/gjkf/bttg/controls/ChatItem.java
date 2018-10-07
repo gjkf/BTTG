@@ -1,36 +1,83 @@
 package me.gjkf.bttg.controls;
 
-import javafx.fxml.FXML;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.BooleanPropertyBase;
+import javafx.css.PseudoClass;
 import javafx.geometry.Pos;
 import javafx.scene.AccessibleRole;
 import javafx.scene.control.Label;
+import org.drinkless.tdlib.TdApi;
+
+import java.util.Arrays;
 
 /**
  * Represents the chat in the {@link ChatControl}.
  */
 public class ChatItem extends Label {
-  @FXML
-  private long userId;
 
-  public ChatItem() {
+  private long userId;
+  private TdApi.User user;
+  private TdApi.BasicGroup basicGroup;
+  private TdApi.SupergroupFullInfo superGroupFullInfo;
+
+  public ChatItem(TdApi.User user) {
+    this.userId = user.id;
+    setText(user.firstName + " " + user.lastName);
     initialize();
   }
 
-  public ChatItem(long userId) {
-    this.userId = userId;
+  public ChatItem(TdApi.SupergroupFullInfo superGroup) {
+    setText(superGroup.description);
+    initialize();
+  }
+
+  public ChatItem(TdApi.BasicGroup basicGroup) {
+    setText(String.valueOf(basicGroup.memberCount));
     initialize();
   }
 
   private void initialize() {
-    getStyleClass().add("chat-item");
-    setOnMouseClicked(event -> System.out.println(this.getUserId()));
+    getStyleClass().add("chatItem");
     setAccessibleRole(AccessibleRole.LIST_ITEM);
     setAlignment(Pos.CENTER);
-    setMinSize(80, 20);
-    setText(Long.toString(userId));
+    setMinSize(100, 20);
+
+    setOnMouseClicked(
+        event -> {
+          setSelected(!getSelected());
+          System.out.println(Arrays.toString(((ChatControl) getParent()).getSelected().toArray()));
+        });
   }
 
   public long getUserId() {
     return userId;
   }
+
+  public void setSelected(boolean selected) {
+    this.selected.set(selected);
+  }
+
+  public boolean getSelected() {
+    return this.selected.get();
+  }
+
+  private BooleanProperty selected =
+      new BooleanPropertyBase(false) {
+        @Override
+        protected void invalidated() {
+          pseudoClassStateChanged(SELECTED_PSEUDO_CLASS, get());
+        }
+
+        @Override
+        public Object getBean() {
+          return ChatItem.this;
+        }
+
+        @Override
+        public String getName() {
+          return "selected";
+        }
+      };
+
+  private static final PseudoClass SELECTED_PSEUDO_CLASS = PseudoClass.getPseudoClass("selected");
 }

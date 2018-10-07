@@ -7,3 +7,11 @@
     -fx-background-color:red;
 }
 */
+
+.chatItem {
+    -fx-background-color: lightslategray;
+}
+
+.chatItem:selected {
+    -fx-background-color: gold;
+}

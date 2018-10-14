@@ -12,12 +12,16 @@ import javafx.scene.layout.VBox;
 import me.gjkf.bttg.BTTG;
 import me.gjkf.bttg.controls.ChatControl;
 import me.gjkf.bttg.controls.ChatItem;
+import me.gjkf.bttg.util.ChatInfo;
 import org.drinkless.tdlib.TdApi;
 import org.drinkless.tdlib.example.Example;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class BTTGMainScene extends StackPane {
@@ -37,12 +41,10 @@ public class BTTGMainScene extends StackPane {
     hBox.setSpacing(10);
 
     ChatControl control = new ChatControl();
-
-    //TODO: Fix the loading timings. It appears it takes too much time to retrieve the information
-
+    // TODO: Fix the loading timings. It appears it takes too much time to retrieve the information
     BTTG.getClient()
         .send(
-            new TdApi.GetChats(Long.MAX_VALUE, 0, 2),
+            new TdApi.GetChats(Long.MAX_VALUE, 0, Integer.MAX_VALUE),
             object -> {
               if (object.getConstructor() == TdApi.Chats.CONSTRUCTOR) {
                 long[] chatIds = ((TdApi.Chats) object).chatIds;
@@ -51,74 +53,19 @@ public class BTTGMainScene extends StackPane {
                         .boxed()
                         .collect(Collectors.toCollection(LinkedList::new));
                 BTTG.setChats(ids);
-
                 // Populate the control with ChatItems corresponding to the chats
+
+                List<Thread> requests = new ArrayList<>();
                 for (long id : ids) {
-                  BTTG.getClient()
-                      .send(
-                          new TdApi.GetChat(id),
-                          result -> {
-                            System.out.println("TYPE: " + ((TdApi.Chat) result).type);
-                            switch (((TdApi.Chat) result).type.getConstructor()) {
-                              case TdApi.ChatTypePrivate.CONSTRUCTOR:
-                                BTTG.getClient()
-                                    .send(
-                                        new TdApi.GetUser((int) id),
-                                        o -> {
-                                          if (o.getConstructor() == TdApi.User.CONSTRUCTOR) {
-                                            TdApi.User info = (TdApi.User) o;
-
-                                            control.getChildren().add(new ChatItem(info));
-                                          } else {
-                                            System.out.println(id + " " + o);
-                                          }
-                                        });
-                                break;
-                              case TdApi.ChatTypeSupergroup.CONSTRUCTOR:
-                                long superGroupId =
-                                    (((TdApi.ChatTypeSupergroup) ((TdApi.Chat) result).type))
-                                        .supergroupId;
-                                BTTG.getClient()
-                                    .send(
-                                        new TdApi.GetSupergroupFullInfo((int) superGroupId),
-                                        o -> {
-                                          if (o.getConstructor()
-                                              == TdApi.SupergroupFullInfo.CONSTRUCTOR) {
-
-                                            TdApi.SupergroupFullInfo info =
-                                                (TdApi.SupergroupFullInfo) o;
-
-                                            System.out.println(info.memberCount);
-
-                                            control.getChildren().add(new ChatItem(info));
-                                          } else {
-                                            System.out.println(id + " " + o);
-                                          }
-                                        });
-                                break;
-                              case TdApi.ChatTypeBasicGroup.CONSTRUCTOR:
-                                long basicGroupId =
-                                    (((TdApi.ChatTypeBasicGroup) ((TdApi.Chat) result).type))
-                                        .basicGroupId;
-                                BTTG.getClient()
-                                    .send(
-                                        new TdApi.GetBasicGroup((int) basicGroupId),
-                                        o -> {
-                                          if (o.getConstructor() == TdApi.BasicGroup.CONSTRUCTOR) {
-                                            TdApi.BasicGroup info = (TdApi.BasicGroup) o;
-
-                                            System.out.println(info.memberCount);
-
-                                            control.getChildren().add(new ChatItem(info));
-                                          } else {
-                                            System.out.println(id + " " + o);
-                                          }
-                                        });
-                                break;
-                              default:
-                                System.out.println("Res: " + result);
-                            }
-                          });
+                  requests.add(new Thread(() -> ChatInfo.getInfo(id)));
+                }
+                for (int i = 0; i < requests.size() - 1; i++) {
+                  requests.get(i).start();
+                  try {
+                    requests.get(i + 1).join();
+                  } catch (InterruptedException e) {
+                    e.printStackTrace();
+                  }
                 }
               } else {
                 System.out.println("Obj: " + object);
@@ -127,6 +74,7 @@ public class BTTGMainScene extends StackPane {
 
     ScrollPane scrollPane = new ScrollPane(control);
     scrollPane.setMaxHeight(150);
+    scrollPane.setPrefWidth(150);
     scrollPane.setFitToHeight(true);
 
     VBox messageBox = new VBox();
@@ -158,7 +106,7 @@ public class BTTGMainScene extends StackPane {
                       content),
                   new Example.DefaultHandler());
         });
-    messageBox.getChildren().add(sendMessage);
+//    messageBox.getChildren().add(sendMessage);
 
     hBox.getChildren().addAll(scrollPane, messageBox);
 
@@ -176,5 +124,61 @@ public class BTTGMainScene extends StackPane {
     h.getChildren().add(v);
 
     getChildren().add(h);
+  }
+
+  private void addPrivateChat(
+      AtomicReference<CountDownLatch> latch, AtomicReference<ChatControl> control, long id) {
+    BTTG.getClient()
+        .send(
+            new TdApi.GetUser((int) id),
+            o -> {
+              if (o.getConstructor() == TdApi.User.CONSTRUCTOR) {
+                TdApi.User info = (TdApi.User) o;
+
+                control.get().getChildren().add(new ChatItem(info));
+                latch.get().countDown();
+              } else {
+                System.out.println(id + " " + o);
+              }
+            });
+  }
+
+  private void addSuperGroup(
+      AtomicReference<CountDownLatch> latch,
+      AtomicReference<ChatControl> control,
+      long superGroupId) {
+    BTTG.getClient()
+        .send(
+            new TdApi.GetSupergroupFullInfo((int) superGroupId),
+            o -> {
+              if (o.getConstructor() == TdApi.SupergroupFullInfo.CONSTRUCTOR) {
+
+                TdApi.SupergroupFullInfo info = (TdApi.SupergroupFullInfo) o;
+
+                control.get().getChildren().add(new ChatItem(info));
+                latch.get().countDown();
+              } else {
+                System.out.println(superGroupId + " " + o);
+              }
+            });
+  }
+
+  private void addGroup(
+      AtomicReference<CountDownLatch> latch,
+      AtomicReference<ChatControl> control,
+      long basicGroupId) {
+    BTTG.getClient()
+        .send(
+            new TdApi.GetBasicGroup((int) basicGroupId),
+            o -> {
+              if (o.getConstructor() == TdApi.BasicGroup.CONSTRUCTOR) {
+                TdApi.BasicGroup info = (TdApi.BasicGroup) o;
+
+                control.get().getChildren().add(new ChatItem(info));
+                latch.get().countDown();
+              } else {
+                System.out.println(basicGroupId + " " + o);
+              }
+            });
   }
 }

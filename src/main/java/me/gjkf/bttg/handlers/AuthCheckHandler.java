@@ -13,7 +13,7 @@ import org.drinkless.tdlib.TdApi;
 public class AuthCheckHandler implements Client.ResultHandler {
   @Override
   public void onResult(TdApi.Object object) {
-    System.out.println(object.toString());
+    System.out.println(object);
     switch (object.getConstructor()) {
       case TdApi.AuthorizationStateReady.CONSTRUCTOR:
         BTTG.setFxml("fxml/bttg.fxml");
@@ -25,7 +25,7 @@ public class AuthCheckHandler implements Client.ResultHandler {
         BTTG.setFxml("fxml/auth.fxml");
         break;
       default:
-        System.err.println("Unrecognized constructor:" + System.lineSeparator() + object.toString());
+        System.err.println("Unrecognized constructor:" + System.lineSeparator() + object);
     }
   }
 }

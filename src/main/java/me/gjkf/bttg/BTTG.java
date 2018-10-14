@@ -10,6 +10,7 @@ import me.gjkf.bttg.handlers.AuthRequestHandler;
 import org.drinkless.tdlib.Client;
 import org.drinkless.tdlib.TdApi;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -94,7 +95,7 @@ public class BTTG extends Application {
   }
 
   public static List<Long> getChats() {
-    return chats;
+    return Collections.unmodifiableList(chats);
   }
 
   public static void setChats(List<Long> chats) {

@@ -21,7 +21,7 @@ public class ChatItem extends Label {
   private TdApi.SupergroupFullInfo superGroupFullInfo;
 
   public ChatItem(TdApi.User user) {
-    this.userId = user.id;
+    userId = user.id;
     setText(user.firstName + " " + user.lastName);
     initialize();
   }
@@ -58,10 +58,10 @@ public class ChatItem extends Label {
   }
 
   public boolean getSelected() {
-    return this.selected.get();
+    return selected.get();
   }
 
-  private BooleanProperty selected =
+  private final BooleanProperty selected =
       new BooleanPropertyBase(false) {
         @Override
         protected void invalidated() {

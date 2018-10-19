@@ -6,7 +6,7 @@ import javafx.css.PseudoClass;
 import javafx.geometry.Pos;
 import javafx.scene.AccessibleRole;
 import javafx.scene.control.Label;
-import me.gjkf.bttg.util.ChatInfo;
+import me.gjkf.bttg.BTTG;
 
 import java.util.Arrays;
 
@@ -22,14 +22,15 @@ public class ChatItem extends Label {
     initialize();
   }
 
+  /** Initialize the component, sets its position and class, sets the text. */
   private void initialize() {
     getStyleClass().add("chatItem");
     setAccessibleRole(AccessibleRole.LIST_ITEM);
     setAlignment(Pos.CENTER);
     setMinSize(100, 20);
-    System.out.println("T: " + chatId);
-    setText(String.valueOf(chatId));
-    ChatInfo.getInfo(chatId);
+    if (BTTG.getChats().containsKey(chatId)) {
+      setText(String.valueOf(BTTG.getChats().get(chatId).title));
+    }
 
     setOnMouseClicked(
         event -> {

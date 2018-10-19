@@ -33,37 +33,7 @@ public class BTTGMainScene extends StackPane {
     hBox.setSpacing(10);
 
     ChatControl control = new ChatControl();
-    // TODO: Fix the loading timings. It appears it takes too much time to retrieve the information
-    //        BTTG.getClient()
-    //            .send(
-    //                new TdApi.GetChats(Long.MAX_VALUE, 0, 5),
-    //                object -> {
-    //                  if (object.getConstructor() == TdApi.Chats.CONSTRUCTOR) {
-    //                    long[] chatIds = ((TdApi.Chats) object).chatIds;
-    //                    List<Long> ids =
-    //                        Arrays.stream(chatIds)
-    //                            .boxed()
-    //                            .collect(Collectors.toCollection(LinkedList::new));
-    //                    // Populate the control with ChatItems corresponding to the chats
-    //
-    //                    List<Thread> requests = new ArrayList<>();
-    //                    for (long id : ids) {
-    //                      requests.add(new Thread(() -> ChatInfo.getInfo(id)));
-    //                    }
-    //                    for (int i = 0; i < requests.size() - 1; i++) {
-    //                      requests.get(i).start();
-    //                      try {
-    //                        requests.get(i + 1).join();
-    //                      } catch (InterruptedException e) {
-    //                        e.printStackTrace();
-    //                      }
-    //                    }
-    //                  } else {
-    //                    System.out.println("Obj: " + object);
-    //                  }
-    //                });
     for (OrderedChat chat : BTTG.getChatList()) {
-      System.out.println(chat.chatId);
       control.getChildren().add(new ChatItem(chat.chatId));
     }
 

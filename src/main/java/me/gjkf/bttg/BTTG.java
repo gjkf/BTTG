@@ -45,7 +45,7 @@ public class BTTG extends Application {
   private static final Map<Integer, TdApi.SupergroupFullInfo> superGroupsFullInfo =
       new ConcurrentHashMap<>();
 
-  private static CountDownLatch latch = new CountDownLatch(1);
+  private static final CountDownLatch latch = new CountDownLatch(1);
 
   @Override
   public void init() throws Exception {
@@ -72,14 +72,15 @@ public class BTTG extends Application {
 
   @Override
   public void start(Stage primaryStage) {
-    //    try {
-    //      root =
+    //        try {
+    //          root =
+    //
     //
     //
     // FXMLLoader.load(Objects.requireNonNull(BTTG.class.getClassLoader().getResource(getFxml())));
-    //    } catch (IOException e) {
-    //      e.printStackTrace();
-    //    }
+    //        } catch (IOException e) {
+    //          e.printStackTrace();
+    //        }
     try {
       latch.await(1500, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
@@ -187,18 +188,6 @@ public class BTTG extends Application {
         return;
       }
 
-      // have enough chats in the chat list to answer request
-//      java.util.Iterator<OrderedChat> iter = chatList.iterator();
-//      System.out.println();
-//      System.out.println(
-//          "First " + limit + " chat(s) out of " + chatList.size() + " known chat(s):");
-//      for (int i = 0; i < limit; i++) {
-//        long chatId = iter.next().chatId;
-//        TdApi.Chat chat = chats.get(chatId);
-//        synchronized (chat) {
-//          System.out.println(chatId + ": " + chat.title);
-//        }
-//      }
       synchronized (chatList) {
         haveFullChatList = true;
         latch.countDown();

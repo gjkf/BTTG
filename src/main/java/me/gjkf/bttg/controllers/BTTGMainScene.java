@@ -12,17 +12,11 @@ import javafx.scene.layout.VBox;
 import me.gjkf.bttg.BTTG;
 import me.gjkf.bttg.controls.ChatControl;
 import me.gjkf.bttg.controls.ChatItem;
-import me.gjkf.bttg.util.ChatInfo;
 import org.drinkless.tdlib.TdApi;
 import org.drinkless.tdlib.example.Example;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 public class BTTGMainScene extends StackPane {
 
@@ -42,35 +36,36 @@ public class BTTGMainScene extends StackPane {
 
     ChatControl control = new ChatControl();
     // TODO: Fix the loading timings. It appears it takes too much time to retrieve the information
-    BTTG.getClient()
-        .send(
-            new TdApi.GetChats(Long.MAX_VALUE, 0, Integer.MAX_VALUE),
-            object -> {
-              if (object.getConstructor() == TdApi.Chats.CONSTRUCTOR) {
-                long[] chatIds = ((TdApi.Chats) object).chatIds;
-                List<Long> ids =
-                    Arrays.stream(chatIds)
-                        .boxed()
-                        .collect(Collectors.toCollection(LinkedList::new));
-                BTTG.setChats(ids);
-                // Populate the control with ChatItems corresponding to the chats
-
-                List<Thread> requests = new ArrayList<>();
-                for (long id : ids) {
-                  requests.add(new Thread(() -> ChatInfo.getInfo(id)));
-                }
-                for (int i = 0; i < requests.size() - 1; i++) {
-                  requests.get(i).start();
-                  try {
-                    requests.get(i + 1).join();
-                  } catch (InterruptedException e) {
-                    e.printStackTrace();
-                  }
-                }
-              } else {
-                System.out.println("Obj: " + object);
-              }
-            });
+//        BTTG.getClient()
+//            .send(
+//                new TdApi.GetChats(Long.MAX_VALUE, 0, 5),
+//                object -> {
+//                  if (object.getConstructor() == TdApi.Chats.CONSTRUCTOR) {
+//                    long[] chatIds = ((TdApi.Chats) object).chatIds;
+//                    List<Long> ids =
+//                        Arrays.stream(chatIds)
+//                            .boxed()
+//                            .collect(Collectors.toCollection(LinkedList::new));
+//                    // Populate the control with ChatItems corresponding to the chats
+//
+//                    List<Thread> requests = new ArrayList<>();
+//                    for (long id : ids) {
+//                      requests.add(new Thread(() -> ChatInfo.getInfo(id)));
+//                    }
+//                    for (int i = 0; i < requests.size() - 1; i++) {
+//                      requests.get(i).start();
+//                      try {
+//                        requests.get(i + 1).join();
+//                      } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                      }
+//                    }
+//                  } else {
+//                    System.out.println("Obj: " + object);
+//                  }
+//                });
+    BTTG.getChatList(10);
+    System.out.println("BTTG: " + BTTG.getChatList());
 
     ScrollPane scrollPane = new ScrollPane(control);
     scrollPane.setMaxHeight(150);

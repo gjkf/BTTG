@@ -7,13 +7,13 @@ import javafx.stage.Stage;
 import me.gjkf.bttg.controllers.BTTGMainScene;
 import me.gjkf.bttg.handlers.AuthCheckHandler;
 import me.gjkf.bttg.handlers.AuthRequestHandler;
+import me.gjkf.bttg.util.OrderedChat;
 import org.drinkless.tdlib.Client;
 import org.drinkless.tdlib.TdApi;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /** Entry point of the GUI application */
 public class BTTG extends Application {
@@ -23,14 +23,25 @@ public class BTTG extends Application {
    */
   private static Client client = null;
 
-  /**
-   * The {@code String} representation of the path for the FXML file
-   */
+  /** The {@code String} representation of the path for the FXML file */
   private static String fxml = null;
 
-  private static List<Long> chats = new LinkedList<>();
-
   private static Parent root;
+
+  private static final Map<Integer, TdApi.User> users = new ConcurrentHashMap<>();
+  private static final Map<Integer, TdApi.BasicGroup> basicGroups = new ConcurrentHashMap<>();
+  private static final Map<Integer, TdApi.Supergroup> supergroups = new ConcurrentHashMap<>();
+  private static final Map<Integer, TdApi.SecretChat> secretChats = new ConcurrentHashMap<>();
+
+  private static final NavigableSet<OrderedChat> chatList = new TreeSet<>();
+  private static final ConcurrentMap<Long, TdApi.Chat> chats = new ConcurrentHashMap<>();
+  private static boolean haveFullChatList = false;
+
+  private static final Map<Integer, TdApi.UserFullInfo> usersFullInfo = new ConcurrentHashMap<>();
+  private static final Map<Integer, TdApi.BasicGroupFullInfo> basicGroupsFullInfo =
+      new ConcurrentHashMap<>();
+  private static final Map<Integer, TdApi.SupergroupFullInfo> supergroupsFullInfo =
+      new ConcurrentHashMap<>();
 
   @Override
   public void init() throws Exception {
@@ -56,8 +67,14 @@ public class BTTG extends Application {
 
   @Override
   public void start(Stage primaryStage) {
-//    root =
-//        FXMLLoader.load(Objects.requireNonNull(BTTG.class.getClassLoader().getResource(getFxml())));
+    //    try {
+    //      root =
+    //
+    //
+    // FXMLLoader.load(Objects.requireNonNull(BTTG.class.getClassLoader().getResource(getFxml())));
+    //    } catch (IOException e) {
+    //      e.printStackTrace();
+    //    }
     root = new BTTGMainScene();
     Scene scene = new Scene(root, 1000, 800);
     scene
@@ -94,20 +111,129 @@ public class BTTG extends Application {
     BTTG.client = client;
   }
 
-  public static List<Long> getChats() {
-    return Collections.unmodifiableList(chats);
-  }
-
-  public static void setChats(List<Long> chats) {
-    BTTG.chats = chats;
-  }
-
   public static Parent getRoot() {
     return root;
   }
 
   public static void setRoot(Parent root) {
     BTTG.root = root;
+  }
+
+  public static void setChatOrder(TdApi.Chat chat, long order) {
+    synchronized (chatList) {
+      if (chat.order != 0) {
+        boolean isRemoved = chatList.remove(new OrderedChat(chat.order, chat.id));
+        assert isRemoved;
+      }
+
+      chat.order = order;
+
+      if (chat.order != 0) {
+        boolean isAdded = chatList.add(new OrderedChat(chat.order, chat.id));
+        assert isAdded;
+      }
+    }
+  }
+
+  /**
+   * Fills {@link #chatList} with {@code limit} chats.
+   *
+   * @param limit The maximum amount of chats allowed.
+   */
+  public static void getChatList(int limit) {
+    synchronized (chatList) {
+      if (!haveFullChatList && limit > chatList.size()) {
+        // have enough chats in the chat list or chat list is too small
+        long offsetOrder = Long.MAX_VALUE;
+        long offsetChatId = 0;
+        if (!chatList.isEmpty()) {
+          OrderedChat last = chatList.last();
+          offsetOrder = last.order;
+          offsetChatId = last.chatId;
+        }
+        client.send(
+            new TdApi.GetChats(offsetOrder, offsetChatId, limit - chatList.size()),
+            object -> {
+              switch (object.getConstructor()) {
+                case TdApi.Error.CONSTRUCTOR:
+                  System.out.println(
+                      "Receive an error for GetChats:" + System.lineSeparator() + object);
+                  break;
+                case TdApi.Chats.CONSTRUCTOR:
+                  long[] chatIds = ((TdApi.Chats) object).chatIds;
+                  if (chatIds.length == 0) {
+                    synchronized (chatList) {
+                      haveFullChatList = true;
+                    }
+                  }
+                  // chats had already been received through updates, let's retry request
+                  getChatList(limit);
+                  break;
+                default:
+                  System.out.println(
+                      "Receive wrong response from TDLib:" + System.lineSeparator() + object);
+              }
+            });
+        return;
+      }
+
+      // have enough chats in the chat list to answer request
+      java.util.Iterator<OrderedChat> iter = chatList.iterator();
+      System.out.println();
+      System.out.println(
+          "First " + limit + " chat(s) out of " + chatList.size() + " known chat(s):");
+      for (int i = 0; i < limit; i++) {
+        long chatId = iter.next().chatId;
+        TdApi.Chat chat = chats.get(chatId);
+        synchronized (chat) {
+          System.out.println(chatId + ": " + chat.title);
+        }
+      }
+    }
+  }
+
+  public static Map<Long, TdApi.Chat> getChats() {
+    return chats;
+  }
+
+  public static Map<Integer, TdApi.User> getUsers() {
+    return users;
+  }
+
+  public static Map<Integer, TdApi.BasicGroup> getBasicGroups() {
+    return basicGroups;
+  }
+
+  public static Map<Integer, TdApi.Supergroup> getSupergroups() {
+    return supergroups;
+  }
+
+  public static Map<Integer, TdApi.SecretChat> getSecretChats() {
+    return secretChats;
+  }
+
+  public static SortedSet<OrderedChat> getChatList() {
+    return chatList;
+  }
+
+  public static boolean isHaveFullChatList() {
+    return haveFullChatList;
+  }
+
+  public static void setHaveFullChatList(boolean haveFullChatList) {
+    BTTG.haveFullChatList = haveFullChatList;
+  }
+
+  public static Map<Integer, TdApi.UserFullInfo> getUsersFullInfo() {
+    return usersFullInfo;
+  }
+
+  public static Map<Integer, TdApi.BasicGroupFullInfo> getBasicGroupsFullInfo() {
+    return basicGroupsFullInfo;
+  }
+
+  public static Map<Integer, TdApi.SupergroupFullInfo> getSupergroupsFullInfo() {
+    return supergroupsFullInfo;
   }
 
   public static void main(String[] args) {

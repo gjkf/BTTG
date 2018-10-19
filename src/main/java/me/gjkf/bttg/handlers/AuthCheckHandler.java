@@ -25,7 +25,7 @@ public class AuthCheckHandler implements Client.ResultHandler {
         BTTG.setFxml("fxml/auth.fxml");
         break;
       default:
-        System.err.println("Unrecognized constructor:" + System.lineSeparator() + object);
+        System.out.println("Unrecognized constructor:" + System.lineSeparator() + object);
     }
   }
 }

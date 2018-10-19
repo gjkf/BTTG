@@ -106,3 +106,5 @@ hs_err_pid*
 /tdlib/profile_photos/
 /tdlib/db.sqlite-shm
 /tdlib/db.sqlite-wal
+.idea/inspectionProfiles/
+tdlib.*

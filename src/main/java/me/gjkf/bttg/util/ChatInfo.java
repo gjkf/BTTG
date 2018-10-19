@@ -3,9 +3,6 @@ package me.gjkf.bttg.util;
 import me.gjkf.bttg.BTTG;
 import org.drinkless.tdlib.TdApi;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 /**
  * Retrieves the info of one chat given the id
  */
@@ -18,6 +15,7 @@ public final class ChatInfo {
         .send(
             new TdApi.GetChat(chatId),
             result -> {
+              System.out.println(result);
               switch (((TdApi.Chat) result).type.getConstructor()) {
                 case TdApi.ChatTypePrivate.CONSTRUCTOR:
                   System.out.println("Info (P) : " + getPrivateChatInfo(chatId));
@@ -40,7 +38,6 @@ public final class ChatInfo {
 
   private static TdApi.UserFullInfo getPrivateChatInfo(long id) {
     TdApi.UserFullInfo[] info = {null};
-    CountDownLatch latch = new CountDownLatch(1);
     BTTG.getClient()
         .send(
             new TdApi.GetUserFullInfo((int) id),
@@ -51,14 +48,7 @@ public final class ChatInfo {
               } else {
                 System.out.println(id + " " + o);
               }
-              latch.countDown();
             });
-
-    try {
-      latch.await(10, TimeUnit.MILLISECONDS);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
     System.out.println("INFO (OUT): " + info[0]);
     return info[0];
   }
@@ -71,8 +61,9 @@ public final class ChatInfo {
             o -> {
               if (o.getConstructor() == TdApi.SupergroupFullInfo.CONSTRUCTOR) {
                 info[0] = (TdApi.SupergroupFullInfo) o;
+//                System.out.println("Test (S) : " + o + " INFO: " + info[0]);
               } else {
-                System.out.println(superGroupId + " " + o);
+//                System.out.println(superGroupId + " " + o);
               }
             });
     return info[0];
@@ -86,8 +77,9 @@ public final class ChatInfo {
             o -> {
               if (o.getConstructor() == TdApi.BasicGroupFullInfo.CONSTRUCTOR) {
                 info[0] = (TdApi.BasicGroupFullInfo) o;
+//                System.out.println("Test (G) : " + o + " INFO: " + info[0]);
               } else {
-                System.out.println(basicGroupId + " " + o);
+//                System.out.println(basicGroupId + " " + o);
               }
             });
     return info[0];

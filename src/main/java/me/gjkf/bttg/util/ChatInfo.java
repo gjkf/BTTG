@@ -61,9 +61,9 @@ public final class ChatInfo {
             o -> {
               if (o.getConstructor() == TdApi.SupergroupFullInfo.CONSTRUCTOR) {
                 info[0] = (TdApi.SupergroupFullInfo) o;
-//                System.out.println("Test (S) : " + o + " INFO: " + info[0]);
+                //                System.out.println("Test (S) : " + o + " INFO: " + info[0]);
               } else {
-//                System.out.println(superGroupId + " " + o);
+                //                System.out.println(superGroupId + " " + o);
               }
             });
     return info[0];
@@ -77,9 +77,9 @@ public final class ChatInfo {
             o -> {
               if (o.getConstructor() == TdApi.BasicGroupFullInfo.CONSTRUCTOR) {
                 info[0] = (TdApi.BasicGroupFullInfo) o;
-//                System.out.println("Test (G) : " + o + " INFO: " + info[0]);
+                //                System.out.println("Test (G) : " + o + " INFO: " + info[0]);
               } else {
-//                System.out.println(basicGroupId + " " + o);
+                //                System.out.println(basicGroupId + " " + o);
               }
             });
     return info[0];

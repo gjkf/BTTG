@@ -6,7 +6,7 @@ import javafx.css.PseudoClass;
 import javafx.geometry.Pos;
 import javafx.scene.AccessibleRole;
 import javafx.scene.control.Label;
-import org.drinkless.tdlib.TdApi;
+import me.gjkf.bttg.util.ChatInfo;
 
 import java.util.Arrays;
 
@@ -15,24 +15,10 @@ import java.util.Arrays;
  */
 public class ChatItem extends Label {
 
-  private long userId;
-  private TdApi.User user;
-  private TdApi.BasicGroup basicGroup;
-  private TdApi.SupergroupFullInfo superGroupFullInfo;
+  private final long chatId;
 
-  public ChatItem(TdApi.User user) {
-    userId = user.id;
-    setText(user.firstName + " " + user.lastName);
-    initialize();
-  }
-
-  public ChatItem(TdApi.SupergroupFullInfo superGroup) {
-    setText(superGroup.description);
-    initialize();
-  }
-
-  public ChatItem(TdApi.BasicGroup basicGroup) {
-    setText(String.valueOf(basicGroup.memberCount));
+  public ChatItem(long chatId) {
+    this.chatId = chatId;
     initialize();
   }
 
@@ -41,6 +27,9 @@ public class ChatItem extends Label {
     setAccessibleRole(AccessibleRole.LIST_ITEM);
     setAlignment(Pos.CENTER);
     setMinSize(100, 20);
+    System.out.println("T: " + chatId);
+    setText(String.valueOf(chatId));
+    ChatInfo.getInfo(chatId);
 
     setOnMouseClicked(
         event -> {
@@ -49,8 +38,8 @@ public class ChatItem extends Label {
         });
   }
 
-  public long getUserId() {
-    return userId;
+  public long getChatId() {
+    return chatId;
   }
 
   public void setSelected(boolean selected) {

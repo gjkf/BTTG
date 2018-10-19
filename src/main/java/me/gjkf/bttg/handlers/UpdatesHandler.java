@@ -8,7 +8,6 @@ import org.drinkless.tdlib.TdApi;
  * Handler for updates. Provides an automatic way to fill {@link BTTG#chatList} and the other
  * fields.
  */
-
 public class UpdatesHandler implements Client.ResultHandler {
   @Override
   public void onResult(TdApi.Object object) {
@@ -35,8 +34,8 @@ public class UpdatesHandler implements Client.ResultHandler {
         BTTG.getBasicGroups().put(updateBasicGroup.basicGroup.id, updateBasicGroup.basicGroup);
         break;
       case TdApi.UpdateSupergroup.CONSTRUCTOR:
-        TdApi.UpdateSupergroup updateSupergroup = (TdApi.UpdateSupergroup) object;
-        BTTG.getSupergroups().put(updateSupergroup.supergroup.id, updateSupergroup.supergroup);
+        TdApi.UpdateSupergroup updateSuperGroup = (TdApi.UpdateSupergroup) object;
+        BTTG.getSuperGroups().put(updateSuperGroup.supergroup.id, updateSuperGroup.supergroup);
         break;
       case TdApi.UpdateSecretChat.CONSTRUCTOR:
         TdApi.UpdateSecretChat updateSecretChat = (TdApi.UpdateSecretChat) object;
@@ -173,7 +172,7 @@ public class UpdatesHandler implements Client.ResultHandler {
       case TdApi.UpdateSupergroupFullInfo.CONSTRUCTOR:
         TdApi.UpdateSupergroupFullInfo updateSupergroupFullInfo =
             (TdApi.UpdateSupergroupFullInfo) object;
-        BTTG.getSupergroupsFullInfo()
+        BTTG.getSuperGroupsFullInfo()
             .put(
                 updateSupergroupFullInfo.supergroupId, updateSupergroupFullInfo.supergroupFullInfo);
         break;

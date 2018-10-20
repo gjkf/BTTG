@@ -8,6 +8,8 @@ import me.gjkf.bttg.controllers.BTTGMainScene;
 import me.gjkf.bttg.handlers.AuthCheckHandler;
 import me.gjkf.bttg.handlers.AuthRequestHandler;
 import me.gjkf.bttg.util.OrderedChat;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.drinkless.tdlib.Client;
 import org.drinkless.tdlib.TdApi;
 
@@ -19,6 +21,8 @@ import java.util.concurrent.TimeUnit;
 
 /** Entry point of the GUI application */
 public class BTTG extends Application {
+
+  private static final Logger logger = LogManager.getLogger(BTTG.class.getName());
 
   /**
    * The client object
@@ -50,6 +54,7 @@ public class BTTG extends Application {
   @Override
   public void init() throws Exception {
     super.init();
+
     TdApi.TdlibParameters parameters = new TdApi.TdlibParameters();
     parameters.databaseDirectory = "tdlib";
     parameters.useMessageDatabase = true;
@@ -84,7 +89,7 @@ public class BTTG extends Application {
     try {
       latch.await(1500, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      logger.throwing(e);
     }
     root = new BTTGMainScene();
     Scene scene = new Scene(root, 1000, 800);
@@ -167,8 +172,7 @@ public class BTTG extends Application {
             object -> {
               switch (object.getConstructor()) {
                 case TdApi.Error.CONSTRUCTOR:
-                  System.out.println(
-                      "Receive an error for GetChats:" + System.lineSeparator() + object);
+                  logger.error("Received an error from GetChats:\n{}", object);
                   break;
                 case TdApi.Chats.CONSTRUCTOR:
                   long[] chatIds = ((TdApi.Chats) object).chatIds;
@@ -181,8 +185,7 @@ public class BTTG extends Application {
                   getChatList(limit);
                   break;
                 default:
-                  System.out.println(
-                      "Receive wrong response from TDLib:" + System.lineSeparator() + object);
+                  logger.warn("Received unknown constructor for GetChats. Object:\n{}", object);
               }
             });
         return;

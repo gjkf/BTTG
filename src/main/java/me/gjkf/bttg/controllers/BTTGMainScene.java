@@ -13,13 +13,20 @@ import me.gjkf.bttg.BTTG;
 import me.gjkf.bttg.controls.ChatControl;
 import me.gjkf.bttg.controls.ChatItem;
 import me.gjkf.bttg.util.OrderedChat;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.drinkless.tdlib.TdApi;
-import org.drinkless.tdlib.example.Example;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class BTTGMainScene extends StackPane {
 
+  private static final Logger logger = LogManager.getLogger(BTTGMainScene.class.getName());
+
   public BTTGMainScene() {
     super();
+
     setAlignment(Pos.CENTER);
     setPadding(new Insets(50));
     setScaleX(2);
@@ -52,26 +59,97 @@ public class BTTGMainScene extends StackPane {
     Button sendMessage = new Button("Send message");
     sendMessage.setOnMousePressed(
         event -> {
-          BTTG.getClient()
-              .send(
-                  new TdApi.CreatePrivateChat(
-                      (int) control.getSelected().findFirst().get().getChatId(), true),
-                  new Example.DefaultHandler());
+          // Create the message object
           TdApi.InputMessageContent content =
               new TdApi.InputMessageText(
                   new TdApi.FormattedText(messageText.getText(), null), false, true);
-          BTTG.getClient()
-              .send(
-                  new TdApi.SendMessage(
-                      (int) control.getSelected().findFirst().get().getChatId(),
-                      0,
-                      false,
-                      false,
-                      null,
-                      content),
-                  new Example.DefaultHandler());
+          control
+              .getSelected()
+              .forEach(
+                  chatItem -> {
+                    // [0] = chatId as integer, [1] = constructor ID
+                    int[] ret = {0, 1};
+                    CountDownLatch latch = new CountDownLatch(1);
+                    BTTG.getClient()
+                        .send(
+                            new TdApi.GetChat(chatItem.getChatId()),
+                            result -> {
+                              switch (((TdApi.Chat) result).type.getConstructor()) {
+                                case TdApi.ChatTypePrivate.CONSTRUCTOR:
+                                  ret[0] = (int) chatItem.getChatId();
+                                  ret[1] = TdApi.ChatTypePrivate.CONSTRUCTOR;
+                                  latch.countDown();
+                                  break;
+                                case TdApi.ChatTypeSupergroup.CONSTRUCTOR:
+                                  int superGroupId =
+                                      (((TdApi.ChatTypeSupergroup) ((TdApi.Chat) result).type))
+                                          .supergroupId;
+                                  ret[0] = superGroupId;
+                                  ret[1] = TdApi.ChatTypeSupergroup.CONSTRUCTOR;
+                                  latch.countDown();
+                                  break;
+                                case TdApi.ChatTypeBasicGroup.CONSTRUCTOR:
+                                  int basicGroupId =
+                                      (((TdApi.ChatTypeBasicGroup) ((TdApi.Chat) result).type))
+                                          .basicGroupId;
+                                  ret[0] = basicGroupId;
+                                  ret[1] = TdApi.ChatTypeBasicGroup.CONSTRUCTOR;
+                                  latch.countDown();
+                                  break;
+                                case TdApi.ChatTypeSecret.CONSTRUCTOR:
+                                  int secretChatId =
+                                      (((TdApi.ChatTypeSecret) ((TdApi.Chat) result).type))
+                                          .secretChatId;
+                                  ret[0] = secretChatId;
+                                  ret[1] = TdApi.ChatTypeSecret.CONSTRUCTOR;
+                                  latch.countDown();
+                              }
+                            });
+                    try {
+                      latch.await(150, TimeUnit.MILLISECONDS);
+                    } catch (InterruptedException e) {
+                      logger.throwing(e);
+                    }
+
+                    // The chatId is different from the one that Td uses to retrieve a
+                    // conversation. That means we have to convert the long chatId to an integer
+                    // version using the Td methods.
+
+                    switch (ret[1]) {
+                      case TdApi.ChatTypePrivate.CONSTRUCTOR:
+                        BTTG.getClient()
+                            .send(
+                                new TdApi.CreatePrivateChat(ret[0], true),
+                                logger::info);
+                        break;
+                      case TdApi.ChatTypeSupergroup.CONSTRUCTOR:
+                        BTTG.getClient()
+                            .send(
+                                new TdApi.CreateSupergroupChat(ret[0], false),
+                                logger::info);
+                        break;
+                      case TdApi.ChatTypeBasicGroup.CONSTRUCTOR:
+                        BTTG.getClient()
+                            .send(
+                                new TdApi.CreateBasicGroupChat(ret[0], true),
+                                logger::info);
+                        break;
+                      case TdApi.ChatTypeSecret.CONSTRUCTOR:
+                        BTTG.getClient()
+                            .send(new TdApi.CreateSecretChat(ret[0]), logger::info);
+                        break;
+                      default:
+                        logger.warn("Constructor {} not recognized.", ret[1]);
+                    }
+
+                    BTTG.getClient()
+                        .send(
+                            new TdApi.SendMessage(
+                                chatItem.getChatId(), 0, false, false, null, content),
+                            logger::info);
+                  });
         });
-    //    messageBox.getChildren().add(sendMessage);
+    messageBox.getChildren().add(sendMessage);
 
     hBox.getChildren().addAll(scrollPane, messageBox);
 

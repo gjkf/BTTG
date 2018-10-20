@@ -1,12 +1,16 @@
 package me.gjkf.bttg.util;
 
 import me.gjkf.bttg.BTTG;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.drinkless.tdlib.TdApi;
 
 /**
  * Retrieves the info of one chat given the id
  */
 public final class ChatInfo {
+
+  private static final Logger logger = LogManager.getLogger(ChatInfo.class.getName());
 
   private ChatInfo() {}
 
@@ -16,7 +20,7 @@ public final class ChatInfo {
         .send(
             new TdApi.GetChat(chatId),
             result -> {
-              System.out.println("Chat: " + result);
+              logger.debug("Chat: " + result);
               switch (((TdApi.Chat) result).type.getConstructor()) {
                 case TdApi.ChatTypePrivate.CONSTRUCTOR:
                   ret[0] = getPrivateChatInfo(chatId);
@@ -47,7 +51,7 @@ public final class ChatInfo {
               if (o.getConstructor() == TdApi.UserFullInfo.CONSTRUCTOR) {
                 info[0] = (TdApi.UserFullInfo) o;
               } else {
-                System.out.println(id + " " + o);
+                logger.debug(id + " " + o);
               }
             });
     BTTG.getClient()
@@ -57,7 +61,7 @@ public final class ChatInfo {
               if (o.getConstructor() == TdApi.User.CONSTRUCTOR) {
                 user[0] = (TdApi.User) o;
               } else {
-                System.out.println(id + " " + o);
+                logger.debug(id + " " + o);
               }
             });
     return new TDUser(
@@ -94,7 +98,7 @@ public final class ChatInfo {
               if (o.getConstructor() == TdApi.SupergroupFullInfo.CONSTRUCTOR) {
                 info[0] = (TdApi.SupergroupFullInfo) o;
               } else {
-                System.out.println(superGroupId + " " + o);
+                logger.debug(superGroupId + " " + o);
               }
             });
     BTTG.getClient()
@@ -104,7 +108,7 @@ public final class ChatInfo {
               if (o.getConstructor() == TdApi.Supergroup.CONSTRUCTOR) {
                 superGroup[0] = (TdApi.Supergroup) o;
               } else {
-                System.out.println(superGroupId + " " + o);
+                logger.debug(superGroupId + " " + o);
               }
             });
     return new TDSuperGroup(
@@ -143,7 +147,7 @@ public final class ChatInfo {
               if (o.getConstructor() == TdApi.BasicGroupFullInfo.CONSTRUCTOR) {
                 info[0] = (TdApi.BasicGroupFullInfo) o;
               } else {
-                System.out.println(basicGroupId + " " + o);
+                logger.debug(basicGroupId + " " + o);
               }
             });
     BTTG.getClient()
@@ -153,7 +157,7 @@ public final class ChatInfo {
               if (o.getConstructor() == TdApi.BasicGroup.CONSTRUCTOR) {
                 group[0] = (TdApi.BasicGroup) o;
               } else {
-                System.out.println(basicGroupId + " " + o);
+                logger.debug(basicGroupId + " " + o);
               }
             });
     return new TDGroup(

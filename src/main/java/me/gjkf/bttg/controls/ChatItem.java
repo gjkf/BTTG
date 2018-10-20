@@ -7,6 +7,8 @@ import javafx.geometry.Pos;
 import javafx.scene.AccessibleRole;
 import javafx.scene.control.Label;
 import me.gjkf.bttg.BTTG;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Arrays;
 
@@ -14,6 +16,8 @@ import java.util.Arrays;
  * Represents the chat in the {@link ChatControl}.
  */
 public class ChatItem extends Label {
+
+  private static final Logger logger = LogManager.getLogger(ChatItem.class.getName());
 
   private final long chatId;
 
@@ -35,7 +39,7 @@ public class ChatItem extends Label {
     setOnMouseClicked(
         event -> {
           setSelected(!getSelected());
-          System.out.println(Arrays.toString(((ChatControl) getParent()).getSelected().toArray()));
+          logger.debug(Arrays.toString(((ChatControl) getParent()).getSelected().toArray()));
         });
   }
 

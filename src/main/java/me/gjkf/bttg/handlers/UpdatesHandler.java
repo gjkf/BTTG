@@ -16,7 +16,6 @@ public class UpdatesHandler implements Client.ResultHandler {
         //          onAuthorizationStateUpdated(((TdApi.UpdateAuthorizationState)
         // object).authorizationState);
         break;
-      //
       case TdApi.UpdateUser.CONSTRUCTOR:
         TdApi.UpdateUser updateUser = (TdApi.UpdateUser) object;
         BTTG.getUsers().put(updateUser.user.id, updateUser.user);

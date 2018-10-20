@@ -15,17 +15,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package me.gjkf.bttg.controls;
 
 import javafx.scene.layout.VBox;
 
-/**
- * The control holding the messages and the chat information
- */
-public class ChatControl extends VBox {
+import java.util.stream.Stream;
 
-  public ChatControl() {
-    getStyleClass().add("chatControl");
+/**
+ * The {@link VBox} containing all the different {@link ChatItem} instances.
+ */
+public class ChatListControl extends VBox {
+
+  public ChatListControl() {
+    getStyleClass().add("chatListControl");
   }
 
+  /**
+   * Returns the selected {@link ChatItem} elements in the list.
+   *
+   * @return A stream containing the selected {@link ChatItem}s
+   */
+  public Stream<ChatItem> getSelected() {
+    return getChildren()
+        .stream()
+        .filter(child -> child instanceof ChatItem)
+        .map(ChatItem.class::cast)
+        .filter(ChatItem::getSelected)
+        .distinct();
+  }
 }

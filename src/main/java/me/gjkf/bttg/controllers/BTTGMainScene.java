@@ -30,6 +30,7 @@ import javafx.scene.layout.VBox;
 import me.gjkf.bttg.BTTG;
 import me.gjkf.bttg.controls.ChatControl;
 import me.gjkf.bttg.controls.ChatItem;
+import me.gjkf.bttg.controls.ChatListControl;
 import me.gjkf.bttg.util.OrderedChat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,6 +42,8 @@ import java.util.concurrent.TimeUnit;
 public class BTTGMainScene extends StackPane {
 
   private static final Logger logger = LogManager.getLogger(BTTGMainScene.class.getName());
+
+  public ChatControl chat;
 
   public BTTGMainScene() {
     super();
@@ -57,14 +60,14 @@ public class BTTGMainScene extends StackPane {
     hBox.setAlignment(Pos.CENTER);
     hBox.setSpacing(10);
 
-    ChatControl control = new ChatControl();
+    ChatListControl control = new ChatListControl();
     for (OrderedChat chat : BTTG.getChatList()) {
       control.getChildren().add(new ChatItem(chat.chatId));
     }
 
     ScrollPane scrollPane = new ScrollPane(control);
-    scrollPane.setMaxHeight(150);
-    scrollPane.setPrefWidth(150);
+    scrollPane.setPrefHeight(400);
+    scrollPane.setPrefWidth(200);
     scrollPane.setFitToHeight(true);
 
     VBox messageBox = new VBox();
@@ -74,6 +77,45 @@ public class BTTGMainScene extends StackPane {
     TextField messageText = new TextField();
     messageBox.getChildren().add(messageText);
 
+    messageBox.getChildren().add(createButton(control, messageText));
+
+    chat = new ChatControl();
+//    BTTG.getMessages().forEach((chatId, content) -> {chat.getChildren().add(new MessageItem(chatId.toString(),
+//        ((TdApi.MessageText) content).text.text));});
+
+    chat.setPrefSize(200, 300);
+
+    VBox chatPlace = new VBox();
+    chatPlace.getChildren().addAll(chat, messageBox);
+
+    hBox.getChildren().addAll(scrollPane, chatPlace);
+
+    Pane p = new Pane(hBox);
+
+    HBox h = new HBox();
+    h.setPrefSize(1500, 1300);
+    h.setAlignment(Pos.CENTER);
+
+    VBox v = new VBox();
+    v.setPrefSize(p.getPrefWidth(), h.getPrefHeight());
+    v.setAlignment(Pos.CENTER);
+
+    v.getChildren().add(p);
+    h.getChildren().add(v);
+
+    getChildren().add(h);
+  }
+
+  /**
+   * Creates the button with the callback connected to it
+   *
+   * @param control     The {@link ChatListControl} object used to retrieve to which chats send the
+   *                    message
+   * @param messageText The {@link TextField} object used to retrieve the text to send
+   *
+   * @return The new button
+   */
+  private Button createButton(ChatListControl control, TextField messageText) {
     Button sendMessage = new Button("Send message");
     sendMessage.setOnMousePressed(
         event -> {
@@ -136,25 +178,18 @@ public class BTTGMainScene extends StackPane {
                     switch (ret[1]) {
                       case TdApi.ChatTypePrivate.CONSTRUCTOR:
                         BTTG.getClient()
-                            .send(
-                                new TdApi.CreatePrivateChat(ret[0], true),
-                                logger::info);
+                            .send(new TdApi.CreatePrivateChat(ret[0], true), logger::info);
                         break;
                       case TdApi.ChatTypeSupergroup.CONSTRUCTOR:
                         BTTG.getClient()
-                            .send(
-                                new TdApi.CreateSupergroupChat(ret[0], false),
-                                logger::info);
+                            .send(new TdApi.CreateSupergroupChat(ret[0], false), logger::info);
                         break;
                       case TdApi.ChatTypeBasicGroup.CONSTRUCTOR:
                         BTTG.getClient()
-                            .send(
-                                new TdApi.CreateBasicGroupChat(ret[0], true),
-                                logger::info);
+                            .send(new TdApi.CreateBasicGroupChat(ret[0], true), logger::info);
                         break;
                       case TdApi.ChatTypeSecret.CONSTRUCTOR:
-                        BTTG.getClient()
-                            .send(new TdApi.CreateSecretChat(ret[0]), logger::info);
+                        BTTG.getClient().send(new TdApi.CreateSecretChat(ret[0]), logger::info);
                         break;
                       default:
                         logger.warn("Constructor {} not recognized.", ret[1]);
@@ -167,23 +202,6 @@ public class BTTGMainScene extends StackPane {
                             logger::info);
                   });
         });
-    messageBox.getChildren().add(sendMessage);
-
-    hBox.getChildren().addAll(scrollPane, messageBox);
-
-    Pane p = new Pane(hBox);
-
-    HBox h = new HBox();
-    h.setPrefSize(1000, 1000);
-    h.setAlignment(Pos.CENTER);
-
-    VBox v = new VBox();
-    v.setPrefSize(p.getPrefWidth(), h.getPrefHeight());
-    v.setAlignment(Pos.CENTER);
-
-    v.getChildren().add(p);
-    h.getChildren().add(v);
-
-    getChildren().add(h);
+    return sendMessage;
   }
 }

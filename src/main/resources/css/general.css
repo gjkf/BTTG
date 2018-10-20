@@ -1,17 +1,19 @@
-/*
-.root {
-    -fx-background-color:#006666;
-}
-
-.button {
-    -fx-background-color:red;
-}
-*/
-
 .chatItem {
     -fx-background-color: lightslategray;
 }
 
 .chatItem:selected {
     -fx-background-color: gold;
+}
+
+.messageItem {
+    -fx-background-color: red;
+}
+
+.chatMessageName {
+    -fx-background-color: yellow;
+}
+
+.chatMessageText {
+    -fx-background-color: orange;
 }

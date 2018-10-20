@@ -28,7 +28,8 @@ gradle-app.setting
 .idea/**/codeStyles
 .idea/**/misc.xml
 .idea/**/.name
-.idea/markdown-navigator/
+.idea/**/markdown-navigator/
+.idea/**/fileTemplates
 
 #Google-Java-Format
 .idea/google-java-format.xml

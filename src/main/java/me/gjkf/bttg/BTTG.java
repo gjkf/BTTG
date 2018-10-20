@@ -56,6 +56,7 @@ public class BTTG extends Application {
   private static final Map<Integer, TdApi.BasicGroup> basicGroups = new ConcurrentHashMap<>();
   private static final Map<Integer, TdApi.Supergroup> superGroups = new ConcurrentHashMap<>();
   private static final Map<Integer, TdApi.SecretChat> secretChats = new ConcurrentHashMap<>();
+  private static final Map<Long, TdApi.Messages> messages = new ConcurrentHashMap<>();
 
   private static final NavigableSet<OrderedChat> chatList = new TreeSet<>();
   private static final ConcurrentMap<Long, TdApi.Chat> chats = new ConcurrentHashMap<>();
@@ -110,7 +111,7 @@ public class BTTG extends Application {
       logger.throwing(e);
     }
     root = new BTTGMainScene();
-    Scene scene = new Scene(root, 1000, 800);
+    Scene scene = new Scene(root, 1500, 1300);
     scene
         .getStylesheets()
         .add(
@@ -260,7 +261,7 @@ public class BTTG extends Application {
     return superGroupsFullInfo;
   }
 
-  public static void main(String[] args) {
-    launch(args);
+  public static Map<Long, TdApi.Messages> getMessages() {
+    return messages;
   }
 }

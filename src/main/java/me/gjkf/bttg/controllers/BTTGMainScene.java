@@ -80,13 +80,13 @@ public class BTTGMainScene extends StackPane {
     messageBox.getChildren().add(createButton(control, messageText));
 
     chat = new ChatControl();
-//    BTTG.getMessages().forEach((chatId, content) -> {chat.getChildren().add(new MessageItem(chatId.toString(),
-//        ((TdApi.MessageText) content).text.text));});
+    chat.setPrefSize(500, 300);
 
-    chat.setPrefSize(200, 300);
+    ScrollPane chatPane = new ScrollPane(chat);
+    chatPane.setPrefSize(500, 300);
 
     VBox chatPlace = new VBox();
-    chatPlace.getChildren().addAll(chat, messageBox);
+    chatPlace.getChildren().addAll(chatPane, messageBox);
 
     hBox.getChildren().addAll(scrollPane, chatPlace);
 

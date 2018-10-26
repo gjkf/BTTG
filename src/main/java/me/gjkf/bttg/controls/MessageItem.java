@@ -18,50 +18,23 @@
 package me.gjkf.bttg.controls;
 
 import javafx.geometry.Insets;
-import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import me.gjkf.bttg.BTTG;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * The clickable object that represents a chat message.
  */
 public class MessageItem extends VBox {
 
-  /**
-   * The name of the sender.
-   */
-  private Label name;
-  /**
-   * The text of the message.
-   */
-  private Label text;
+  private static final Logger logger = LogManager.getLogger(MessageItem.class);
 
   public MessageItem(long chatId, long messageId) {
-    super();
-    initialize();
-    if (BTTG.getChats().containsKey(chatId)) {
-      name.setText(String.valueOf(BTTG.getChats().get(chatId).title));
-    }
+    getStyleClass().add("chatMessageItem");
+    setPadding(new Insets(10, 0, 10, 0));
+    setSpacing(10);
+    getChildren().add(new MessageLabel(chatId));
+    getChildren().add(new MessageText(chatId, messageId));
+//    setVgrow(this, Priority.ALWAYS);
   }
-
-  public MessageItem(String senderName, String messageText) {
-    super();
-    initialize();
-    name.setText(senderName);
-    text.setText(messageText);
-  }
-
-  private void initialize() {
-    getStyleClass().add("messageItem");
-//    setAlignment(Pos.CENTER_LEFT);
-    setPrefWidth(150);
-    setMaxWidth(300);
-    name = new Label();
-    text = new Label();
-    text.setPadding(new Insets(10, 0, 0, 0));
-    name.getStyleClass().add("chatMessageName");
-    text.getStyleClass().add("chatMessageText");
-    getChildren().addAll(name, text);
-  }
-
 }

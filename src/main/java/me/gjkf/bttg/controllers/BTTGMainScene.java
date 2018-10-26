@@ -109,10 +109,9 @@ public class BTTGMainScene extends StackPane {
   /**
    * Creates the button with the callback connected to it
    *
-   * @param control     The {@link ChatListControl} object used to retrieve to which chats send the
-   *                    message
+   * @param control The {@link ChatListControl} object used to retrieve to which chats send the
+   *     message
    * @param messageText The {@link TextField} object used to retrieve the text to send
-   *
    * @return The new button
    */
   private Button createButton(ChatListControl control, TextField messageText) {

@@ -30,7 +30,9 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * Controller for the authentication code insertion
+ * Controller for the authentication code insertion.
+ *
+ * @author Davide Cossu
  */
 public class AuthFXMLController {
   @FXML private TextField authCode;

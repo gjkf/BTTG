@@ -1,5 +1,5 @@
 /*
- * bttg
+ * BTTG: a Telegram client for those who want more.
  * Copyright (C) 2018  Davide Cossu
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,64 +19,77 @@ package me.gjkf.bttg.controls;
 
 import javafx.geometry.Insets;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import me.gjkf.bttg.BTTG;
+import me.gjkf.bttg.util.ChatInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
  * An object representing the sender label. Allows for customizable coloring through CSS or
  * automatic coloring based on the chatId.
+ *
+ * @author Davide Cossu
  */
 public class MessageLabel extends Pane {
 
   private static final Logger logger = LogManager.getLogger(MessageLabel.class);
 
   private final long chatId;
+  private final long messageId;
+  private Text text;
 
-  public MessageLabel(long chatId) {
+  public MessageLabel(long chatId, long messageId) {
     super();
     this.chatId = chatId;
+    this.messageId = messageId;
     if (BTTG.getChats().containsKey(chatId)) {
-      Text text = new Text(String.valueOf(BTTG.getChats().get(chatId).title));
+      String label = "";
+      if (BTTG.getChats().get((long) ChatInfo.getMessage(chatId, messageId).senderUserId) != null) {
+        label =
+            BTTG.getChats().get((long) ChatInfo.getMessage(chatId, messageId).senderUserId).title;
+      } else { // It's a channel so directly get the chatId
+        label = BTTG.getChats().get(chatId).title;
+      }
+      text = new Text(label);
       text.getStyleClass().add("chatMessageSender");
       getChildren().add(text);
     }
     initialize();
-
   }
 
   private void initialize() {
-//    getStyleClass().add("chatMessageSender");
-    setPrefHeight(20);
+    getStyleClass().add("chatMessageSender");
     setPrefWidth(60);
     setMaxWidth(100);
-    setPadding(new Insets(10, 0, 10, 0));
+    setPadding(new Insets(0, 0, 5, 0));
 
-    //      Color color = Color.DARKCYAN;
-    //      switch ((int) (chatId % 5)) {
-    //        case 0:
-    //          color = Color.AQUA;
-    //          break;
-    //        case 1:
-    //          color = Color.RED;
-    //          break;
-    //        case 2:
-    //          color = Color.WHITE;
-    //          break;
-    //        case 3:
-    //          color = Color.GREEN;
-    //          break;
-    //        case 4:
-    //          color = Color.ORANGE;
-    //          break;
-    //      }
-    //    setStyle(
-    //        "-fx-text-fill: "
-    //            + String.format(
-    //                "#%02x%02x%02x",
-    //                (int) (color.getRed() * 255),
-    //                (int) (color.getGreen() * 255),
-    //                (int) (color.getBlue() * 255)));
+    Color color = Color.DARKCYAN;
+    switch (ChatInfo.getMessage(chatId, messageId).senderUserId % 5) {
+      case 0:
+        color = Color.AQUA;
+        break;
+      case 1:
+        color = Color.RED;
+        break;
+      case 2:
+        color = Color.WHITE;
+        break;
+      case 3:
+        color = Color.BLACK;
+        break;
+      case 4:
+        color = Color.ORANGE;
+        break;
+    }
+    text.setStyle(
+        "-fx-fill: "
+            + String.format(
+            "#%02x%02x%02x",
+            (int) (color.getRed() * 255),
+            (int) (color.getGreen() * 255),
+            (int) (color.getBlue() * 255))
+            + ";");
   }
 }

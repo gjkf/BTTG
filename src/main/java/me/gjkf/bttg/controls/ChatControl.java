@@ -20,7 +20,9 @@ package me.gjkf.bttg.controls;
 import javafx.scene.layout.VBox;
 
 /**
- * The control holding the messages and the chat information
+ * The control holding the messages and the chat information.
+ *
+ * @author Davide Cossu
  */
 public class ChatControl extends VBox {
 

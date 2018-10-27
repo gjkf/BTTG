@@ -24,6 +24,8 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * The clickable object that represents a chat message.
+ *
+ * @author Davide Cossu
  */
 public class MessageItem extends VBox {
 
@@ -32,8 +34,9 @@ public class MessageItem extends VBox {
   public MessageItem(long chatId, long messageId) {
     getStyleClass().add("chatMessageItem");
     setPadding(new Insets(10, 0, 10, 0));
-    setSpacing(10);
-    getChildren().add(new MessageLabel(chatId));
+    MessageLabel label = new MessageLabel(chatId, messageId);
+    setMargin(label, new Insets(10, 0, 0, 0));
+    getChildren().add(label);
     getChildren().add(new MessageText(chatId, messageId));
 //    setVgrow(this, Priority.ALWAYS);
   }

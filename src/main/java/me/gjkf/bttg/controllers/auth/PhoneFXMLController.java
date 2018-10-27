@@ -30,7 +30,9 @@ import java.io.IOException;
 import java.util.Objects;
 
 /**
- * Controller for the number insertion scene
+ * Controller for the number insertion scene.
+ *
+ * @author Davide Cossu
  */
 public class PhoneFXMLController {
 

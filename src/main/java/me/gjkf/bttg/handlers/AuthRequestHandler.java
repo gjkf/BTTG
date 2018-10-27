@@ -25,6 +25,8 @@ import org.drinkless.tdlib.TdApi;
 
 /**
  * Handles the request for authorization.
+ *
+ * @author Davide Cossu
  */
 
 public class AuthRequestHandler implements Client.ResultHandler {

@@ -1,5 +1,5 @@
 /*
- * bttg
+ * BTTG: a Telegram client for those who want more.
  * Copyright (C) 2018  Davide Cossu
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,6 @@
  */
 package me.gjkf.bttg.controls;
 
-import javafx.geometry.Insets;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -29,6 +28,12 @@ import org.drinkless.tdlib.TdApi;
 
 import java.util.Arrays;
 
+/**
+ * The text of the message. Constructs a {@link TextFlow} object with different styles,
+ * corresponding to the {@link org.drinkless.tdlib.TdApi.TextEntity} objects in the message.
+ *
+ * @author Davide Cossu
+ */
 public class MessageText extends Pane {
 
   private static final Logger logger = LogManager.getLogger(MessageText.class);
@@ -51,11 +56,10 @@ public class MessageText extends Pane {
   }
 
   private void initialize() {
-    getStyleClass().add("chatMessageItem");
-    setPrefHeight(50);
-    setPrefWidth(150);
-    textLabel.setPadding(new Insets(30, 0, 30, 0));
+    setMinHeight(50);
+    setPrefWidth(500);
     textLabel.getStyleClass().add("chatMessageText");
+    textLabel.setPrefWidth(getPrefWidth());
     getChildren().add(textLabel);
   }
 
@@ -89,13 +93,15 @@ public class MessageText extends Pane {
           break;
         case TdApi.TextEntityTypeCashtag.CONSTRUCTOR:
           break;
-        case TdApi.TextEntityTypeCode.CONSTRUCTOR:
-          break;
         case TdApi.TextEntityTypeEmailAddress.CONSTRUCTOR:
           break;
         case TdApi.TextEntityTypeHashtag.CONSTRUCTOR:
           break;
         case TdApi.TextEntityTypeItalic.CONSTRUCTOR:
+          String italicText = text.text.substring(entity.offset, entity.offset + entity.length);
+          Text italic = new Text(italicText);
+          italic.setStyle("-fx-font-style: italic;");
+          textFlow.getChildren().add(italic);
           break;
         case TdApi.TextEntityTypeMention.CONSTRUCTOR:
           break;
@@ -103,9 +109,14 @@ public class MessageText extends Pane {
           break;
         case TdApi.TextEntityTypePhoneNumber.CONSTRUCTOR:
           break;
+        case TdApi.TextEntityTypeCode.CONSTRUCTOR:
         case TdApi.TextEntityTypePre.CONSTRUCTOR:
-          break;
         case TdApi.TextEntityTypePreCode.CONSTRUCTOR:
+          String codeText = text.text.substring(entity.offset, entity.offset + entity.length);
+          Text code = new Text(codeText);
+          code.setStyle("-fx-font-family: monotype;");
+          code.setStyle("-fx-fill: red;");
+          textFlow.getChildren().add(code);
           break;
         case TdApi.TextEntityTypeTextUrl.CONSTRUCTOR:
           break;

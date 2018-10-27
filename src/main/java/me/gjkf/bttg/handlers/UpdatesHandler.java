@@ -25,6 +25,8 @@ import org.drinkless.tdlib.TdApi;
 /**
  * Handler for updates. Provides an automatic way to fill {@link BTTG#chatList} and the other
  * fields.
+ *
+ * @author Davide Cossu
  */
 public class UpdatesHandler implements Client.ResultHandler {
   @Override

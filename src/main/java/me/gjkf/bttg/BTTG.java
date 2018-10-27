@@ -25,6 +25,7 @@ import javafx.stage.Stage;
 import me.gjkf.bttg.controllers.BTTGMainScene;
 import me.gjkf.bttg.handlers.AuthCheckHandler;
 import me.gjkf.bttg.handlers.AuthRequestHandler;
+import me.gjkf.bttg.util.ChatInfo;
 import me.gjkf.bttg.util.OrderedChat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +38,13 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-/** Entry point of the GUI application */
+/**
+ * Entry point of the GUI application.
+ *
+ * <p>Provides methods to locally store messages and chats so that it is easier to work with them.
+ *
+ * @author Davide Cossu
+ */
 public class BTTG extends Application {
 
   private static final Logger logger = LogManager.getLogger(BTTG.class.getName());
@@ -92,6 +99,7 @@ public class BTTG extends Application {
 
     client.send(new TdApi.GetAuthorizationState(), new AuthCheckHandler());
     getChatList(Integer.MAX_VALUE);
+    getChats().forEach((id, chat) -> ChatInfo.retrieveMessages(id, Integer.MAX_VALUE));
   }
 
   @Override

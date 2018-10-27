@@ -24,6 +24,10 @@ import java.util.stream.Stream;
 
 /**
  * The {@link VBox} containing all the different {@link ChatItem} instances.
+ *
+ * <p>Provides a way to get the current selected items.
+ *
+ * @author Davide Cossu
  */
 public class ChatListControl extends VBox {
 

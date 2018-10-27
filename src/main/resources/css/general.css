@@ -6,12 +6,8 @@
     -fx-background-color: gold;
 }
 
-/*.chatMessageItem {
-    -fx-background-color: red;
-}*/
-
-.chatMessageSender {
-    -fx-background-color: yellow;
+.chatMessageItem {
+    -fx-background-color: darkgreen;
 }
 
 .chatMessageText {

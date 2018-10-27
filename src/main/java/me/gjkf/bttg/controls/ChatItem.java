@@ -34,6 +34,14 @@ import java.util.stream.Stream;
 
 /**
  * Represents the chat in the {@link ChatListControl}.
+ *
+ * <p>On click, it will retrieve the last 100 messages from the chat with id {@link ChatItem#chatId}
+ * and create the corresponding {@link MessageItem} objects to display in the {@link
+ * BTTGMainScene#chat}.
+ *
+ * @see ChatControl
+ * @see MessageItem
+ * @author Davide Cossu
  */
 public class ChatItem extends Label {
 
@@ -83,14 +91,29 @@ public class ChatItem extends Label {
         });
   }
 
+  /**
+   * Getter for property 'chatId'.
+   *
+   * @return Value for property 'chatId'.
+   */
   public long getChatId() {
     return chatId;
   }
 
+  /**
+   * Setter for property 'selected'.
+   *
+   * @param selected Value to set for property 'selected'.
+   */
   public void setSelected(boolean selected) {
     this.selected.set(selected);
   }
 
+  /**
+   * Getter for property 'selected'.
+   *
+   * @return Value for property 'selected'.
+   */
   public boolean getSelected() {
     return selected.get();
   }

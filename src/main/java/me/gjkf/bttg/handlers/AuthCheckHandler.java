@@ -30,6 +30,7 @@ import org.drinkless.tdlib.TdApi;
  * display.
  *
  * @see BTTG#init()
+ * @author Davide Cossu
  */
 public class AuthCheckHandler implements Client.ResultHandler {
 

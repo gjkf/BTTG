@@ -29,7 +29,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 /**
- * Retrieves the info of one chat given the id
+ * Utility class to ease the retrieval of information.
+ *
+ * @author Davide Cossu
  */
 public final class ChatInfo {
 
@@ -38,10 +40,24 @@ public final class ChatInfo {
   private ChatInfo() {}
 
   /**
+   * Given the chat id and the message id, returns the {@link org.drinkless.tdlib.TdApi.Message}
+   * object corresponding to the data.
+   *
+   * @param chatId    The chatId from which search the message.
+   * @param messageId The messageId of the message.
+   *
+   * @return The message object.
+   */
+  public static TdApi.Message getMessage(long chatId, long messageId) {
+    TdApi.Message[] messages = BTTG.getMessages().get(chatId).messages;
+    return Arrays.stream(messages).filter(message -> message.id == messageId).findFirst().get();
+  }
+
+  /**
    * Retrieves the last {@code limit} messages from the given chat. Updates {@link BTTG#messages}.
    *
    * @param chatId The id of the chat from which gather the messages.
-   * @param limit  The maximum number of messages to add.
+   * @param limit The maximum number of messages to add.
    */
   public static void retrieveMessages(long chatId, int limit) {
     // We need to call multiple times the GetChatHistory function since it will retrieve

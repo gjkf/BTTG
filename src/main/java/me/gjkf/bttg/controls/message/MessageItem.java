@@ -15,9 +15,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package me.gjkf.bttg.controls;
+package me.gjkf.bttg.controls.message;
 
 import javafx.geometry.Insets;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,13 +32,26 @@ public class MessageItem extends VBox {
 
   private static final Logger logger = LogManager.getLogger(MessageItem.class);
 
-  public MessageItem(long chatId, long messageId) {
+  private final IMessage message;
+
+  public MessageItem(IMessage message) {
+    this.message = message;
+    initialize();
+  }
+
+  private void initialize() {
     getStyleClass().add("chatMessageItem");
     setPadding(new Insets(10, 0, 10, 0));
-    MessageLabel label = new MessageLabel(chatId, messageId);
+
+    MessageLabel label = new MessageLabel(message.getChatId(), message.getMessageId());
     setMargin(label, new Insets(10, 0, 0, 0));
     getChildren().add(label);
-    getChildren().add(new MessageText(chatId, messageId));
-//    setVgrow(this, Priority.ALWAYS);
+    // TODO: 11/27/18 Add the support for different types of messages
+    getChildren().add(new MessageText(message.getChatId(), message.getMessageId()));
+
+    setOnMouseClicked(
+        event -> {
+          if (event.getButton() == MouseButton.SECONDARY) logger.info(message.getMessageId());
+        });
   }
 }

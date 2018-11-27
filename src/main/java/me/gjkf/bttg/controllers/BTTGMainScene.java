@@ -77,7 +77,7 @@ public class BTTGMainScene extends StackPane {
     TextField messageText = new TextField();
     messageBox.getChildren().add(messageText);
 
-    messageBox.getChildren().add(createButton(control, messageText));
+    messageBox.getChildren().add(createSendButton(control, messageText));
 
     chat = new ChatControl();
     chat.setPrefSize(500, 300);
@@ -114,7 +114,7 @@ public class BTTGMainScene extends StackPane {
    * @param messageText The {@link TextField} object used to retrieve the text to send
    * @return The new button
    */
-  private Button createButton(ChatListControl control, TextField messageText) {
+  private Button createSendButton(ChatListControl control, TextField messageText) {
     Button sendMessage = new Button("Send message");
     sendMessage.setOnMousePressed(
         event -> {
@@ -177,18 +177,18 @@ public class BTTGMainScene extends StackPane {
                     switch (ret[1]) {
                       case TdApi.ChatTypePrivate.CONSTRUCTOR:
                         BTTG.getClient()
-                            .send(new TdApi.CreatePrivateChat(ret[0], true), logger::info);
+                            .send(new TdApi.CreatePrivateChat(ret[0], true), logger::error);
                         break;
                       case TdApi.ChatTypeSupergroup.CONSTRUCTOR:
                         BTTG.getClient()
-                            .send(new TdApi.CreateSupergroupChat(ret[0], false), logger::info);
+                            .send(new TdApi.CreateSupergroupChat(ret[0], false), logger::error);
                         break;
                       case TdApi.ChatTypeBasicGroup.CONSTRUCTOR:
                         BTTG.getClient()
-                            .send(new TdApi.CreateBasicGroupChat(ret[0], true), logger::info);
+                            .send(new TdApi.CreateBasicGroupChat(ret[0], true), logger::error);
                         break;
                       case TdApi.ChatTypeSecret.CONSTRUCTOR:
-                        BTTG.getClient().send(new TdApi.CreateSecretChat(ret[0]), logger::info);
+                        BTTG.getClient().send(new TdApi.CreateSecretChat(ret[0]), logger::error);
                         break;
                       default:
                         logger.warn("Constructor {} not recognized.", ret[1]);

@@ -26,11 +26,11 @@ import javafx.scene.AccessibleRole;
 import javafx.scene.control.Label;
 import me.gjkf.bttg.BTTG;
 import me.gjkf.bttg.controllers.BTTGMainScene;
+import me.gjkf.bttg.controls.message.IMessage;
+import me.gjkf.bttg.controls.message.MessageItem;
 import me.gjkf.bttg.util.ChatInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.stream.Stream;
 
 /**
  * Represents the chat in the {@link ChatListControl}.
@@ -68,23 +68,35 @@ public class ChatItem extends Label {
         event -> {
           setSelected(!getSelected());
           if (getSelected()) {
-            ChatInfo.retrieveMessages(chatId, 100);
-
             ((BTTGMainScene) BTTG.getRoot()).chat.getChildren().clear();
+            try {
+              ChatInfo.retrieveMessages(chatId, 100)
+                  .forEach(
+                      message ->
+                          ((BTTGMainScene) BTTG.getRoot())
+                              .chat
+                              .getChildren()
+                              .add(
+                                  0,
+                                  new MessageItem(
+                                      new IMessage() {
+                                        @Override
+                                        public long getChatId() {
+                                          return chatId;
+                                        }
 
-            BTTG.getMessages()
-                .forEach(
-                    (chat, content) -> {
-                      if (chat == chatId) {
-                        Stream.of(content.messages)
-                            .forEach(
-                                message ->
-                                    ((BTTGMainScene) BTTG.getRoot())
-                                        .chat
-                                        .getChildren()
-                                        .add(0, new MessageItem(chat, message.id)));
-                      }
-                    });
+                                        @Override
+                                        public long getMessageId() {
+                                          return message.id;
+                                        }
+
+                                        @Override
+                                        public void initialize() {}
+                                      })));
+              logger.debug(((BTTGMainScene) BTTG.getRoot()).chat.getChildren());
+            } catch (Exception e) {
+              logger.throwing(e);
+            }
           } else {
             ((BTTGMainScene) BTTG.getRoot()).chat.getChildren().clear();
           }

@@ -15,14 +15,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package me.gjkf.bttg.controls;
+package me.gjkf.bttg.controls.message;
 
 import javafx.geometry.Insets;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import me.gjkf.bttg.BTTG;
-import me.gjkf.bttg.util.ChatInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,7 +31,7 @@ import org.apache.logging.log4j.Logger;
  *
  * @author Davide Cossu
  */
-public class MessageLabel extends Pane {
+public class MessageLabel extends Pane implements IMessage {
 
   private static final Logger logger = LogManager.getLogger(MessageLabel.class);
 
@@ -45,13 +44,13 @@ public class MessageLabel extends Pane {
     this.chatId = chatId;
     this.messageId = messageId;
     if (BTTG.getChats().containsKey(chatId)) {
-      String label = "";
-      if (BTTG.getChats().get((long) ChatInfo.getMessage(chatId, messageId).senderUserId) != null) {
-        label =
-            BTTG.getChats().get((long) ChatInfo.getMessage(chatId, messageId).senderUserId).title;
-      } else { // It's a channel so directly get the chatId
-        label = BTTG.getChats().get(chatId).title;
-      }
+      String label = String.valueOf(chatId);
+//      if (BTTG.getChats().get((long) ChatInfo.getMessage(chatId, messageId).senderUserId) != null) {
+//        label =
+//            BTTG.getChats().get((long) ChatInfo.getMessage(chatId, messageId).senderUserId).title;
+//      } else { // It's a channel so directly get the chatId
+//        label = BTTG.getChats().get(chatId).title;
+//      }
       text = new Text(label);
       text.getStyleClass().add("chatMessageSender");
       getChildren().add(text);
@@ -59,30 +58,34 @@ public class MessageLabel extends Pane {
     initialize();
   }
 
-  private void initialize() {
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initialize() {
     getStyleClass().add("chatMessageSender");
     setPrefWidth(60);
     setMaxWidth(100);
     setPadding(new Insets(0, 0, 5, 0));
 
     Color color = Color.DARKCYAN;
-    switch (ChatInfo.getMessage(chatId, messageId).senderUserId % 5) {
-      case 0:
-        color = Color.AQUA;
-        break;
-      case 1:
-        color = Color.RED;
-        break;
-      case 2:
-        color = Color.WHITE;
-        break;
-      case 3:
-        color = Color.BLACK;
-        break;
-      case 4:
-        color = Color.ORANGE;
-        break;
-    }
+//    switch (ChatInfo.getMessage(chatId, messageId).senderUserId % 5) {
+//      case 0:
+//        color = Color.AQUA;
+//        break;
+//      case 1:
+//        color = Color.RED;
+//        break;
+//      case 2:
+//        color = Color.WHITE;
+//        break;
+//      case 3:
+//        color = Color.BLACK;
+//        break;
+//      case 4:
+//        color = Color.ORANGE;
+//        break;
+//    }
     text.setStyle(
         "-fx-fill: "
             + String.format(
@@ -91,5 +94,21 @@ public class MessageLabel extends Pane {
             (int) (color.getGreen() * 255),
             (int) (color.getBlue() * 255))
             + ";");
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public long getChatId() {
+    return chatId;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public long getMessageId() {
+    return messageId;
   }
 }

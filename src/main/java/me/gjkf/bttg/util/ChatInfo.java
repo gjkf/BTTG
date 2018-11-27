@@ -24,9 +24,14 @@ import org.apache.logging.log4j.Logger;
 import org.drinkless.tdlib.TdApi;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 /**
  * Utility class to ease the retrieval of information.
@@ -40,33 +45,54 @@ public final class ChatInfo {
   private ChatInfo() {}
 
   /**
-   * Given the chat id and the message id, returns the {@link org.drinkless.tdlib.TdApi.Message}
-   * object corresponding to the data.
+   * Given the chat id and the message id, returns the {@link org.drinkless.tdlib.TdApi.Message
+   * message} object corresponding to the data.
    *
-   * @param chatId    The chatId from which search the message.
+   * @param chatId The chatId from which search the message.
    * @param messageId The messageId of the message.
-   *
    * @return The message object.
    */
   public static TdApi.Message getMessage(long chatId, long messageId) {
-    TdApi.Message[] messages = BTTG.getMessages().get(chatId).messages;
-    return Arrays.stream(messages).filter(message -> message.id == messageId).findFirst().get();
+    CountDownLatch latch = new CountDownLatch(1);
+    ExecutorService service = Executors.newCachedThreadPool();
+    TdApi.Message[] ret = new TdApi.Message[1];
+    service.submit(
+        () -> {
+          List<TdApi.Message> messages = retrieveMessages(chatId, 100);
+          messages.forEach(
+              message -> {
+                if (message.id == messageId) {
+                  ret[0] = message;
+                  latch.countDown();
+                }
+              });
+        });
+    try {
+      latch.await(100, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      logger.throwing(e);
+    }
+    return ret[0];
   }
 
   /**
-   * Retrieves the last {@code limit} messages from the given chat. Updates {@link BTTG#messages}.
+   * Retrieves the last {@code limit} messages from the given chat.
    *
    * @param chatId The id of the chat from which gather the messages.
-   * @param limit The maximum number of messages to add.
+   * @param limit The maximum number of messages to get.
+   * @return A list containing the messages.
+   * @see TdApi.Message
    */
-  public static void retrieveMessages(long chatId, int limit) {
+  public static List<TdApi.Message> retrieveMessages(long chatId, int limit) {
     // We need to call multiple times the GetChatHistory function since it will retrieve
     // different amount of messages up to 100 (or a set limit). To optimize it all, it will
     // just fetch some, not all of them.
     long from = 0;
     int total = limit;
     CountDownLatch latch = new CountDownLatch(total);
+    List<TdApi.Message> ret = Collections.synchronizedList(new LinkedList<>());
     while (total > 0) {
+      logger.trace("(B) From: {}, Total: {}", from, total);
       int finalTotal = total;
       BTTG.getClient()
           .send(
@@ -74,21 +100,9 @@ public final class ChatInfo {
               result -> {
                 switch (result.getConstructor()) {
                   case TdApi.Messages.CONSTRUCTOR:
-                    BTTG.getMessages()
-                        .merge(
-                            chatId,
-                            (TdApi.Messages) result,
-                            (o, n) ->
-                                new TdApi.Messages(
-                                    o.totalCount + n.totalCount,
-                                    Stream.concat(
-                                        Arrays.stream(o.messages), Arrays.stream(n.messages))
-                                        .toArray(TdApi.Message[]::new)));
                     TdApi.Message[] messages = ((TdApi.Messages) result).messages;
-
-                    logger.info(
-                        "{}={}/{}", chatId, BTTG.getMessages().get(chatId).totalCount, finalTotal);
-
+                    ret.addAll(Arrays.asList(messages));
+                    logger.info("{}={}/{}", chatId, ret.size(), finalTotal);
                     for (TdApi.Message message : messages) {
 
                       TdApi.MessageContent content = message.content;
@@ -181,8 +195,49 @@ public final class ChatInfo {
       } catch (InterruptedException e) {
         logger.throwing(e);
       }
-      from = Arrays.stream(BTTG.getMessages().get(chatId).messages).findFirst().get().id;
-      total -= BTTG.getMessages().get(chatId).totalCount;
+      from = ret.get(ret.size() - 1).id;
+      logger.debug("Tot: {}", total);
+      total -= ret.size();
+      logger.trace("(E) From: {}, Total: {}, Size: {}\n", from, total, ret.size());
+    }
+    return ret;
+  }
+
+  /**
+   * Fills the {@link BTTG#getHashtags()} map with {@link org.drinkless.tdlib.TdApi.Hashtags
+   * hashtags} from the chat given the identifier.
+   *
+   * @param hashtag The String of the identifier.
+   * @param chatId  The chatId.
+   * @param limit   The number of hashtags to retrieve.
+   */
+  public static void getHashtags(String hashtag, long chatId, int limit) {
+    CountDownLatch latch = new CountDownLatch(1);
+    List<TdApi.Message> ret = Collections.synchronizedList(new LinkedList<>());
+    BTTG.getClient()
+        .send(
+            new TdApi.SearchHashtags(hashtag, limit),
+            result -> {
+              // TODO: 11/27/18 Test performance. In case it is too slow, see #getMessage
+              switch (result.getConstructor()) {
+                case TdApi.Hashtags.CONSTRUCTOR:
+                  ret.addAll(
+                      retrieveMessages(chatId, 100)
+                          .stream()
+                          .filter(message -> (message.content instanceof TdApi.MessageText))
+                          .filter(t -> ((TdApi.MessageText) t.content).text.text.contains(hashtag))
+                          .collect(Collectors.toCollection(LinkedList::new)));
+                  logger.info(ret);
+                  latch.countDown();
+                  break;
+                default:
+                  logger.warn("Unrecognized constructor:\n{}", result);
+              }
+            });
+    try {
+      latch.await(100, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      logger.throwing(e);
     }
   }
 

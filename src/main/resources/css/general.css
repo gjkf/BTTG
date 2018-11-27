@@ -1,3 +1,5 @@
+/* *** Chat items, the one on the left *** */
+
 .chatItem {
     -fx-background-color: lightslategray;
 }
@@ -6,10 +8,24 @@
     -fx-background-color: gold;
 }
 
+/* *** Chat messages displayed on the right *** */
+
 .chatMessageItem {
     -fx-background-color: darkgreen;
+    -fx-border-color: red;
 }
 
 .chatMessageText {
     -fx-background-color: orange;
+}
+
+/* *** Chat text styles *** */
+
+.chatMessageTextCode{
+    -fx-font-family: monotype;
+    -fx-fill: red;
+}
+
+.chatMessageTextHashtag{
+    -fx-fill: blue;
 }

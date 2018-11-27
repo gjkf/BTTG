@@ -15,13 +15,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package me.gjkf.bttg.controls;
+package me.gjkf.bttg.controls.message;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import me.gjkf.bttg.BTTG;
+import me.gjkf.bttg.util.ChatInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.drinkless.tdlib.TdApi;
@@ -34,9 +35,12 @@ import java.util.Arrays;
  *
  * @author Davide Cossu
  */
-public class MessageText extends Pane {
+public class MessageText extends Pane implements IMessage {
 
   private static final Logger logger = LogManager.getLogger(MessageText.class);
+
+  private final long chatId;
+  private final long messageId;
 
   /**
    * The label of the message.
@@ -45,17 +49,20 @@ public class MessageText extends Pane {
 
   public MessageText(long chatId, long messageId) {
     super();
-    TdApi.Message m =
-        Arrays.stream(BTTG.getMessages().get(chatId).messages)
-            .filter(message -> message.id == messageId)
-            .findFirst()
-            .get();
+    this.chatId = chatId;
+    this.messageId = messageId;
+    TdApi.Message m = ChatInfo.getMessage(chatId, messageId);
+    logger.debug("Message: {}", m);
     TdApi.FormattedText formattedText = ((TdApi.MessageText) m.content).text;
     textLabel = handleEntities(formattedText);
     initialize();
   }
 
-  private void initialize() {
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void initialize() {
     setMinHeight(50);
     setPrefWidth(500);
     textLabel.getStyleClass().add("chatMessageText");
@@ -68,9 +75,8 @@ public class MessageText extends Pane {
    * together.
    *
    * @param text The Telegram instance of the text in the message.
-   *
    * @return A {@link TextFlow} containing different {@link Text} objects with the correct
-   * formatting.
+   *     formatting.
    */
   private TextFlow handleEntities(TdApi.FormattedText text) {
     // The final text component that will be showed
@@ -96,6 +102,21 @@ public class MessageText extends Pane {
         case TdApi.TextEntityTypeEmailAddress.CONSTRUCTOR:
           break;
         case TdApi.TextEntityTypeHashtag.CONSTRUCTOR:
+          String hashtagText = text.text.substring(entity.offset, entity.offset + entity.length);
+          Text hashtag = new Text(hashtagText);
+          hashtag.getStyleClass().add("chatMessageTextHashtag");
+          hashtag.setOnMouseClicked(
+              event -> {
+                // Retrieve and fill the map
+                ChatInfo.getHashtags(hashtagText, chatId, 100);
+                // TODO: 11/1/18 Add the "go to message" function and list in a pretty way the
+                // messages
+                Arrays.stream(BTTG.getMessages().get(chatId).messages)
+                    .filter(message -> (message.content instanceof TdApi.MessageText))
+                    .filter(t -> ((TdApi.MessageText) t.content).text.text.contains(hashtagText))
+                    .forEach(tag -> logger.debug(tag.id));
+              });
+          textFlow.getChildren().add(hashtag);
           break;
         case TdApi.TextEntityTypeItalic.CONSTRUCTOR:
           String italicText = text.text.substring(entity.offset, entity.offset + entity.length);
@@ -114,8 +135,7 @@ public class MessageText extends Pane {
         case TdApi.TextEntityTypePreCode.CONSTRUCTOR:
           String codeText = text.text.substring(entity.offset, entity.offset + entity.length);
           Text code = new Text(codeText);
-          code.setStyle("-fx-font-family: monotype;");
-          code.setStyle("-fx-fill: red;");
+          code.getStyleClass().add("chatMessageTextCode");
           textFlow.getChildren().add(code);
           break;
         case TdApi.TextEntityTypeTextUrl.CONSTRUCTOR:
@@ -133,5 +153,21 @@ public class MessageText extends Pane {
     textFlow.getChildren().add(last);
     textFlow.setTextAlignment(TextAlignment.LEFT);
     return textFlow;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public long getChatId() {
+    return chatId;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public long getMessageId() {
+    return messageId;
   }
 }

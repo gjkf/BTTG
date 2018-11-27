@@ -64,6 +64,7 @@ public class BTTG extends Application {
   private static final Map<Integer, TdApi.Supergroup> superGroups = new ConcurrentHashMap<>();
   private static final Map<Integer, TdApi.SecretChat> secretChats = new ConcurrentHashMap<>();
   private static final Map<Long, TdApi.Messages> messages = new ConcurrentHashMap<>();
+  private static final Map<Long, TdApi.Hashtags> hashtags = new ConcurrentHashMap<>();
 
   private static final NavigableSet<OrderedChat> chatList = new TreeSet<>();
   private static final ConcurrentMap<Long, TdApi.Chat> chats = new ConcurrentHashMap<>();
@@ -77,6 +78,7 @@ public class BTTG extends Application {
 
   private static final CountDownLatch latch = new CountDownLatch(1);
 
+  /** {@inheritDoc} */
   @Override
   public void init() throws Exception {
     super.init();
@@ -102,6 +104,7 @@ public class BTTG extends Application {
     getChats().forEach((id, chat) -> ChatInfo.retrieveMessages(id, Integer.MAX_VALUE));
   }
 
+  /** {@inheritDoc} */
   @Override
   public void start(Stage primaryStage) {
     //        try {
@@ -132,32 +135,63 @@ public class BTTG extends Application {
     primaryStage.show();
   }
 
+  /** {@inheritDoc} */
   @Override
   public void stop() throws Exception {
     super.stop();
     client.close();
   }
 
+  /**
+   * Getter for property 'fxml'.
+   *
+   * @return Value for property 'fxml'.
+   */
   public static String getFxml() {
     return fxml;
   }
 
+  /**
+   * Setter for property 'fxml'.
+   *
+   * @param fxml Value to set for property 'fxml'.
+   */
   public static void setFxml(String fxml) {
     BTTG.fxml = fxml;
   }
 
+  /**
+   * Getter for property 'client'.
+   *
+   * @return Value for property 'client'.
+   */
   public static Client getClient() {
     return client;
   }
 
+  /**
+   * Setter for property 'client'.
+   *
+   * @param client Value to set for property 'client'.
+   */
   public static void setClient(Client client) {
     BTTG.client = client;
   }
 
+  /**
+   * Getter for property 'root'.
+   *
+   * @return Value for property 'root'.
+   */
   public static Parent getRoot() {
     return root;
   }
 
+  /**
+   * Setter for property 'root'.
+   *
+   * @param root Value to set for property 'root'.
+   */
   public static void setRoot(Parent root) {
     BTTG.root = root;
   }
@@ -225,51 +259,120 @@ public class BTTG extends Application {
     }
   }
 
+  /**
+   * Getter for property 'chats'.
+   *
+   * @return Value for property 'chats'.
+   */
   public static Map<Long, TdApi.Chat> getChats() {
     return chats;
   }
 
+  /**
+   * Getter for property 'users'.
+   *
+   * @return Value for property 'users'.
+   */
   public static Map<Integer, TdApi.User> getUsers() {
     return users;
   }
 
+  /**
+   * Getter for property 'basicGroups'.
+   *
+   * @return Value for property 'basicGroups'.
+   */
   public static Map<Integer, TdApi.BasicGroup> getBasicGroups() {
     return basicGroups;
   }
 
+  /**
+   * Getter for property 'superGroups'.
+   *
+   * @return Value for property 'superGroups'.
+   */
   public static Map<Integer, TdApi.Supergroup> getSuperGroups() {
     return superGroups;
   }
 
+  /**
+   * Getter for property 'secretChats'.
+   *
+   * @return Value for property 'secretChats'.
+   */
   public static Map<Integer, TdApi.SecretChat> getSecretChats() {
     return secretChats;
   }
 
+  /**
+   * Getter for property 'chatList'.
+   *
+   * @return Value for property 'chatList'.
+   */
   public static SortedSet<OrderedChat> getChatList() {
     return chatList;
   }
 
+  /**
+   * Getter for property 'haveFullChatList'.
+   *
+   * @return Value for property 'haveFullChatList'.
+   */
   public static boolean isHaveFullChatList() {
     return haveFullChatList;
   }
 
+  /**
+   * Setter for property 'haveFullChatList'.
+   *
+   * @param haveFullChatList Value to set for property 'haveFullChatList'.
+   */
   public static void setHaveFullChatList(boolean haveFullChatList) {
     BTTG.haveFullChatList = haveFullChatList;
   }
 
+  /**
+   * Getter for property 'usersFullInfo'.
+   *
+   * @return Value for property 'usersFullInfo'.
+   */
   public static Map<Integer, TdApi.UserFullInfo> getUsersFullInfo() {
     return usersFullInfo;
   }
 
+  /**
+   * Getter for property 'basicGroupsFullInfo'.
+   *
+   * @return Value for property 'basicGroupsFullInfo'.
+   */
   public static Map<Integer, TdApi.BasicGroupFullInfo> getBasicGroupsFullInfo() {
     return basicGroupsFullInfo;
   }
 
+  /**
+   * Getter for property 'superGroupsFullInfo'.
+   *
+   * @return Value for property 'superGroupsFullInfo'.
+   */
   public static Map<Integer, TdApi.SupergroupFullInfo> getSuperGroupsFullInfo() {
     return superGroupsFullInfo;
   }
 
+  /**
+   * Getter for property 'messages'.
+   *
+   * @return Value for property 'messages'.
+   */
   public static Map<Long, TdApi.Messages> getMessages() {
     return messages;
+  }
+
+  /**
+   * Getter for property 'hashtags'.
+   *
+   * @return Value for property 'hashtags'.
+   */
+  public static Map<Long, TdApi.Hashtags> getHashtags() {
+    return hashtags;
   }
 }
